@@ -1,4 +1,5 @@
 import './globals.css';
+import { pretendard } from './fonts';
 
 export default function RootLayout({
   children,
@@ -6,7 +7,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" className={pretendard.variable}>
       <body>{children}</body>
     </html>
   );

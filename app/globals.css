@@ -1,1 +1,20 @@
 @import 'tailwindcss';
+
+@theme {
+  --color-primary: #4ac5b2;
+  --color-secondary: #e89a80;
+  --color-white: #f8f7f4;
+  --color-black: #1a1c20;
+}
+
+@layer base {
+  body {
+    font-family:
+      var(--font-pretendard),
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      sans-serif;
+  }
+}
