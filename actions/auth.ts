@@ -1,10 +1,41 @@
 'use server';
 
-import { LoginActionState } from '@/types/auth';
+import { ErrorRes, LoginActionState, UserActionState } from '@/types/auth';
 import { cookies } from 'next/headers';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const CLIENT_ID = process.env.NEXT_PUBLIC_CLIENT_ID || '';
+
+// 회원가입
+export async function signup(state: UserActionState, formData: FormData): Promise<UserActionState> {
+  let response: Response;
+  let data: UserActionState | ErrorRes;
+
+  try {
+    const body = {
+      type: formData.get('type') || 'user',
+      name: formData.get('name'),
+      email: formData.get('email'),
+      password: formData.get('password'),
+    };
+
+    response = await fetch(`${API_URL}/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'Application/json',
+        'Client-Id': CLIENT_ID,
+      },
+      body: JSON.stringify(body),
+    });
+
+    data = await response.json();
+  } catch (err) {
+    console.error(err);
+    return { ok: 0, message: '일시적인 네트워크 문제가 발생했습니다.' };
+  }
+
+  return data;
+}
 
 // 로그인
 export async function login(state: LoginActionState, formdata: FormData): Promise<LoginActionState> {
@@ -48,7 +79,7 @@ export async function login(state: LoginActionState, formdata: FormData): Promis
       });
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return { ok: 0, message: '일시적인 네트워크 문제가 발생했습니다.' };
   }
 

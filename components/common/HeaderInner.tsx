@@ -5,9 +5,11 @@ import Image from 'next/image';
 import { useState } from 'react';
 import useUserStore from '@/store/userStore';
 import { logout } from '@/actions/auth';
+import { useRouter } from 'next/navigation';
 
 export default function HeaderInner() {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
   const user = useUserStore((state) => state.user);
   const resetUser = useUserStore((state) => state.resetUser);
   const hydrated = useUserStore((state) => state.hydrated);
@@ -16,6 +18,7 @@ export default function HeaderInner() {
     await logout();
     resetUser();
     alert(`감사합니다, ${user?.name}님!\n로그아웃이 완료되었습니다!`);
+    router.replace('/');
   };
 
   return (
@@ -45,12 +48,12 @@ export default function HeaderInner() {
                       마이페이지
                     </Link>
                   </li>
-                  <li>
+                  <li className="mb-2 lg:mb-0">
                     <Link href="/subscription" className="block text-yg-black font-medium text-[14px] md:text-[16px]">
                       구독하기
                     </Link>
                   </li>
-                  <li className="mb-2 lg:mb-0">
+                  <li>
                     <button type="button" onClick={handleLogout} className="block w-full text-yg-black font-semibold text-[14px] text-left cursor-pointer md:text-[16px]">
                       로그아웃
                     </button>
@@ -63,7 +66,7 @@ export default function HeaderInner() {
                       로그인
                     </Link>
                   </li>
-                  <li className="mb-2 lg:mb-0">
+                  <li>
                     <Link href="/signup" className="block text-yg-black font-medium text-[14px] md:text-[16px]">
                       회원가입
                     </Link>

@@ -4,7 +4,7 @@ import { login } from '@/actions/auth';
 import AuthInput from '@/components/auth/AuthInput';
 import BaseButton from '@/components/common/BaseButton';
 import useUserStore from '@/store/userStore';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useActionState, useEffect } from 'react';
 import { BeatLoader } from 'react-spinners';
 
@@ -12,7 +12,6 @@ export default function LoginForm() {
   const setUser = useUserStore((state) => state.setUser);
   const [userState, formAction, isPending] = useActionState(login, null);
   const router = useRouter();
-  const redirect = useSearchParams().get('redirect');
 
   useEffect(() => {
     if (userState?.ok) {
@@ -29,9 +28,9 @@ export default function LoginForm() {
         addressDetail: userState.item.addressDetail,
       });
       alert(`안녕하세요, ${userState.item.name}님!\n로그인이 완료되었습니다!`);
-      router.replace(redirect || '/');
+      router.replace('/');
     }
-  }, [setUser, userState, router, redirect]);
+  }, [setUser, userState, router]);
 
   return (
     <form action={formAction}>
