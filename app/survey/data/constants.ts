@@ -16,7 +16,7 @@ export const CATEGORY_LIST: { label: string; key: CategoryKey }[] = [
 export const INTENSITY_OPTIONS: { label: string; value: Intensity }[] = [
   { label: '매우 낮음', value: 'very_low' },
   { label: '낮음', value: 'low' },
-  { label: '보통', value: 'mid' },
+  { label: '보통', value: 'medium' },
   { label: '높음', value: 'high' },
   { label: '매우 높음', value: 'very_high' },
 ];

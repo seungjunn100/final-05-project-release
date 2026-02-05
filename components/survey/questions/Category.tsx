@@ -8,10 +8,20 @@ type Props = {
 };
 
 export default function Category({ categories, value, onChange, maxSelect = 2 }: Props) {
+  const isMaxSelected = value.length >= maxSelect;
+
   const toggle = (id: string) => {
     const has = value.includes(id);
-    if (has) return onChange?.(value.filter((v) => v !== id));
-    if (value.length >= maxSelect) return;
+
+    // 선택 해제 가능
+    if (has) {
+      onChange?.(value.filter((v) => v !== id));
+      return;
+    }
+
+    // 초과 방지
+    if (isMaxSelected) return;
+
     onChange?.([...value, id]);
   };
 
@@ -20,12 +30,20 @@ export default function Category({ categories, value, onChange, maxSelect = 2 }:
       <div className="grid grid-cols-2 gap-3">
         {categories.map((c) => {
           const active = value.includes(c.id);
+          const disabled = isMaxSelected && !active;
+
           return (
             <button
               key={c.id}
               type="button"
               onClick={() => toggle(c.id)}
-              className={['h-11 rounded-full border text-sm font-medium', active ? 'border-transparent bg-[var(--color-yg-primary)] text-white' : 'border-[var(--color-yg-lightgray)] bg-white text-[var(--color-yg-black)] hover:bg-[var(--color-yg-white)]'].join(' ')}
+              disabled={disabled}
+              aria-disabled={disabled}
+              className={[
+                'h-11 rounded-full border text-sm font-medium transition',
+                active ? 'border-transparent bg-[var(--color-yg-primary)] text-white' : 'border-[var(--color-yg-lightgray)] bg-white text-[var(--color-yg-black)] hover:bg-[var(--color-yg-white)]',
+                disabled ? 'cursor-not-allowed opacity-40' : '',
+              ].join(' ')}
             >
               {c.label}
             </button>

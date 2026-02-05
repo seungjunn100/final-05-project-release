@@ -1,3 +1,5 @@
+import type { NutritionNutrient } from '@/types/product';
+
 type NutritionFact = {
   name: string;
   amount: string;
@@ -5,13 +7,13 @@ type NutritionFact = {
 };
 
 type ProductInfoSectionProps = {
-  features: string[];
-  nutritionFacts: NutritionFact[];
-  intake: string;
-  cautions: string[];
+  features?: string[];
+  nutritionFacts?: NutritionFact[];
+  intake?: string;
+  cautions?: string[];
 };
 
-export default function ProductInfoSection({ features, nutritionFacts, intake, cautions }: ProductInfoSectionProps) {
+export default function ProductInfoSection({ features = [], nutritionFacts = [], intake = '', cautions = [] }: ProductInfoSectionProps) {
   return (
     <section className="space-y-10">
       {/* 주요 기능 */}

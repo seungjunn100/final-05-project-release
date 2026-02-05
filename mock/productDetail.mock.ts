@@ -1,21 +1,26 @@
 export const productDetailMock = {
-  id: '1',
-  name: '비타민C 1000',
-  summary: '고함량 비타민C로 면역력 증진에 도움',
-  price: 19900,
+  _id: '1',
+  name: '루테인 플러스',
+  summary: '눈 건강에 도움을 줄 수 있는 건강기능식품',
+  price: 29800,
+  categoryId: 'eye',
+  imageUrl: '/images/sample.png',
+  tags: ['눈건강', '루테인'],
 
-  brand: 'YOUNGGOO',
-  rating: 4.8,
-  reviewCount: 124,
-  shippingLabel: '무료배송 · 2~3일 내 도착',
-  imageUrl: '/images/sample-product.png',
-  tags: ['BEST', '인기'],
+  mainNutrients: ['루테인', '지아잔틴'],
+  mainFunctions: ['눈 피로 개선', '황반 건강 유지'],
 
-  features: ['항산화 작용', '면역력 강화', '피로 회복 도움'],
-  nutritionFacts: [
-    { name: '비타민 C', amount: '1000mg', percent: '1000%' },
-    { name: '나트륨', amount: '5mg', percent: '1%' },
-  ],
-  intake: '하루 1회, 식후 물과 함께 섭취',
-  cautions: ['임산부 및 수유부는 섭취 전 전문가와 상담하세요.', '과다 섭취 시 복통이 발생할 수 있습니다.'],
+  nutritionInfoExample: {
+    servingSize: '1캡슐 (500mg)',
+    nutrients: [
+      { name: '루테인', amount: '20mg', percent: '100%' },
+      { name: '지아잔틴', amount: '4mg', percent: '80%' },
+    ],
+  },
+
+  intakeGuide: '1일 1회, 1캡슐을 물과 함께 섭취하세요.',
+  precautions: ['임산부는 섭취 전 전문가와 상담하세요.'],
+
+  // ✅ 이거 추가
+  storage: '서늘하고 건조한 곳',
 };

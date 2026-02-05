@@ -1,11 +1,9 @@
 // AuthInput 컴포넌트 props 타입 정의
-export interface AuthInputProps {
+export interface AuthInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  name: string;
-  type?: 'text' | 'email' | 'password';
-  placeholder?: string;
-  className?: string;
   error?: string | null;
+  isValid?: boolean | null;
+  message?: string;
 }
 
 // BaseButton 컴포넌트 props 타입 정의
@@ -83,3 +81,6 @@ export interface ErrorRes {
 
 export type LoginActionState = LoginSuccessRes | ErrorRes | null;
 export type UserActionState = UserInfoRes | ErrorRes | null;
+
+// 이메일 응답 타입
+export type EmailCheckRes = { ok: 1 } | { ok: 0; message: string };

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { validateAnswer } from '@/app/survey/data/validation';
 
 import SurveyTitle from '@/components/survey/SurveyTitle';
 import ProgressBar from '@/components/survey/ProgressBar';
@@ -14,6 +15,9 @@ import PillIcon from '@/components/survey/icons/pill';
 import type { QuestionData } from '@/app/survey/data/Questions';
 import type { CategoryKey } from '@/app/survey/data/buildQuestion';
 import { buildQuestions } from '@/app/survey/data/buildQuestion';
+
+import { SURVEY_RESULT_PAYLOAD_KEY } from '@/app/survey/constants/storage';
+import { buildSurveyPayload } from '@/app/survey/utils/buildSurveyPayload';
 
 type AnswerMap = Record<string, unknown>;
 
@@ -54,6 +58,7 @@ export default function SurveyQuestionsPage() {
   }
 
   const answer = answers[q.id];
+  const { isValid: isCurrentValid } = validateAnswer(q, answer);
 
   const handleChange = (next: unknown) => {
     setAnswers((prev) => ({
@@ -69,11 +74,17 @@ export default function SurveyQuestionsPage() {
 
   const handlePrimary = () => {
     if (isLast) {
-      // 다음 이슈에서 수정 예정
-      console.log('SUBMIT answers:', answers);
+      const payload = buildSurveyPayload({
+        answers,
+        selectedCategories: selectedCategories ?? [],
+      });
+
+      sessionStorage.setItem(SURVEY_RESULT_PAYLOAD_KEY, JSON.stringify(payload));
+
       router.push('/survey/result');
       return;
     }
+
     goNext();
   };
 
@@ -87,8 +98,7 @@ export default function SurveyQuestionsPage() {
         <Question badge={badge} title={q.title ?? '질문'} description={q.description} icon={<PillIcon className="h-12 w-12" />} />
 
         <QuestionRenderer question={q} value={answer} onChange={handleChange} />
-
-        <BottomNav secondaryLabel={safeStep === 0 ? undefined : '이전'} onSecondary={goPrev} primaryLabel={isLast ? '제출' : '다음'} onPrimary={handlePrimary} />
+        <BottomNav secondaryLabel={safeStep === 0 ? undefined : '이전'} onSecondary={goPrev} primaryLabel={isLast ? '제출' : '다음'} onPrimary={handlePrimary} disabledPrimary={!isCurrentValid} />
       </div>
     </SurveyTitle>
   );

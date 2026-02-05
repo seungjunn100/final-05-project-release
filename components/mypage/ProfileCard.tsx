@@ -1,13 +1,13 @@
 import TabCard from './TabCard';
 
 interface ProfileCardProps {
-  nickname: string;
-  userId: string;
+  name: string;
+  email: string;
   onLogout: () => void;
   onDeleteAccount: () => void;
 }
 
-export default function ProfileCard({ nickname, userId, onLogout, onDeleteAccount }: ProfileCardProps) {
+export default function ProfileCard({ name, email, onLogout, onDeleteAccount }: ProfileCardProps) {
   return (
     <TabCard>
       <div className="flex flex-col items-center mb-6">
@@ -17,8 +17,8 @@ export default function ProfileCard({ nickname, userId, onLogout, onDeleteAccoun
             <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold mb-2">{nickname}</h2>
-        <p className="text-yg-darkgray">@{userId}</p>
+        <h2 className="text-2xl font-bold mb-2">{name}</h2>
+        <p className="text-yg-darkgray">{email}</p>
       </div>
 
       {/* 로그아웃 / 회원탈퇴 버튼 */}

@@ -22,3 +22,26 @@
       sans-serif;
   }
 }
+
+@media (min-width: 1024px) {
+  .link-hover {
+    position: relative;
+
+    &::after {
+      display: block;
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background-color: #e89a80;
+      transition: width 0.25s;
+    }
+
+    &:hover::after {
+      width: 100%;
+    }
+  }
+}

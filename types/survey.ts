@@ -1,6 +1,6 @@
 export type CategoryKey = 'diet' | 'skin_hair' | 'women' | 'eye' | 'gut' | 'brain' | 'bone_joint' | 'blood_flow' | 'immune_fatigue' | 'general';
 
-export type Intensity = 'very_low' | 'low' | 'mid' | 'high' | 'very_high';
+export type Intensity = 'very_low' | 'low' | 'medium' | 'high' | 'very_high';
 
 export type AnswerMap = Record<string, unknown>;
 
@@ -19,7 +19,7 @@ export type BasicInfoQuestion = BaseQuestion & {
 
 export type CategoryQuestion = BaseQuestion & {
   type: 'category';
-  maxSelect: number; //초과 방지는 다음 이슈에서 진행
+  maxSelect: number;
 };
 
 export type MultiChoiceQuestion = BaseQuestion & {
@@ -33,3 +33,23 @@ export type ScaleChoiceQuestion = BaseQuestion & {
 };
 
 export type QuestionDef = BasicInfoQuestion | CategoryQuestion | MultiChoiceQuestion | ScaleChoiceQuestion;
+
+//payload 타입 관리
+export type SurveyResultPayload = {
+  createdAt: string;
+
+  basicInfo: {
+    gender: string;
+    ageGroup: string;
+  };
+
+  selectedCategories: string[];
+
+  categories: Record<
+    CategoryKey,
+    {
+      state: string[];
+      intensity: Intensity;
+    }
+  >;
+};

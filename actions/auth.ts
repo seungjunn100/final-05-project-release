@@ -8,7 +8,7 @@ const CLIENT_ID = process.env.NEXT_PUBLIC_CLIENT_ID || '';
 
 // 회원가입
 export async function signup(state: UserActionState, formData: FormData): Promise<UserActionState> {
-  let response: Response;
+  let res: Response;
   let data: UserActionState | ErrorRes;
 
   try {
@@ -19,7 +19,7 @@ export async function signup(state: UserActionState, formData: FormData): Promis
       password: formData.get('password'),
     };
 
-    response = await fetch(`${API_URL}/users`, {
+    res = await fetch(`${API_URL}/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'Application/json',
@@ -28,7 +28,7 @@ export async function signup(state: UserActionState, formData: FormData): Promis
       body: JSON.stringify(body),
     });
 
-    data = await response.json();
+    data = await res.json();
   } catch (err) {
     console.error(err);
     return { ok: 0, message: '일시적인 네트워크 문제가 발생했습니다.' };
@@ -41,11 +41,11 @@ export async function signup(state: UserActionState, formData: FormData): Promis
 export async function login(state: LoginActionState, formdata: FormData): Promise<LoginActionState> {
   const body = Object.fromEntries(formdata.entries());
 
-  let response: Response;
+  let res: Response;
   let data: LoginActionState;
 
   try {
-    response = await fetch(`${API_URL}/users/login`, {
+    res = await fetch(`${API_URL}/users/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ export async function login(state: LoginActionState, formdata: FormData): Promis
       body: JSON.stringify(body),
     });
 
-    data = await response.json();
+    data = await res.json();
 
     if (data?.ok) {
       const accessToken = data.item.token.accessToken;

@@ -1,15 +1,17 @@
 'use client';
+import Image from 'next/image';
 
 export type SupplementTag = { label: string };
 
 export type Supplement = {
   id: string;
   name: string;
+  price: number;
   description: string;
   tags: SupplementTag[];
   badge?: string;
+  imageUrl?: string;
 };
-
 type Props = {
   item: Supplement;
   onClickDetail?: (id: string) => void;
@@ -17,20 +19,20 @@ type Props = {
 
 export default function SupplementCard({ item, onClickDetail }: Props) {
   return (
-    <article className="overflow-hidden rounded-2xl border border-[var(--color-yg-lightgray)] bg-white shadow-sm">
+    <article className="overflow-hidden rounded-2xl border border-yg-lightgray bg-white shadow-sm">
       {/* 이미지 영역 */}
-      <div className="relative h-52 w-full bg-[var(--color-yg-white)]">
-        <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-[var(--color-yg-lightgray)] bg-white px-3 py-1 text-xs font-semibold text-[var(--color-yg-black)]">
-          <span className="h-2 w-2 rounded-full bg-[var(--color-yg-primary)]" />
+      <div className="relative h-52 w-full overflow-hidden bg-yg-white">
+        <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-yg-lightgray bg-white px-3 py-1 text-xs font-semibold text-yg-black">
+          <span className="h-2 w-2 rounded-full bg-yg-primary" />
           {item.badge ?? 'AI 추천'}
         </div>
-        {/* 현재는 실제 상품 이미지가 없어 아이콘 사용 */}
-        <div className="flex h-full items-center justify-center text-5xl">💊</div>
+
+        {item.imageUrl ? <Image src={item.imageUrl} alt={item.name} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" /> : <div className="flex h-full items-center justify-center text-5xl">💊</div>}
       </div>
 
       <div className="p-6">
         {/* 상품명*/}
-        <h3 className="text-xl font-bold text-[var(--color-yg-black)]">{item.name}</h3>
+        <h3 className="text-xl font-bold text-yg-black">{item.name}</h3>
 
         {/* 태그 */}
         <div className="mt-3 flex flex-wrap gap-2">
@@ -40,21 +42,21 @@ export default function SupplementCard({ item, onClickDetail }: Props) {
         </div>
 
         {/* 설명 */}
-        <p className="mt-4 text-base leading-7 text-[var(--color-yg-darkgray)]">{item.description}</p>
+        <p className="mt-4 text-base leading-7 text-yg-darkgray">{item.description}</p>
 
         {/* 상세 보기 버튼 */}
         <button
           type="button"
           className="
     mt-5 w-full rounded-2xl
-    border border-[var(--color-yg-primary)]
+    border border-yg-primary
     bg-white
     px-4 py-4
     text-base font-semibold
-    text-[var(--color-yg-primary)]
+    text-yg-primary
     transition
-    hover:bg-[var(--color-yg-primary)]/5
-    hover:border-[var(--color-yg-primary)]
+    hover:bg-yg-primary/5
+    hover:border-yg-primary
   "
           onClick={() => onClickDetail?.(item.id)}
         >
@@ -69,11 +71,11 @@ function TagPill({ label }: { label: string }) {
     <span
       className="
         rounded-full
-        border border-[var(--color-yg-primary)]
-        bg-[color:var(--color-yg-primary)]/10
+        border border-yg-primary
+        bg-yg-primary/10
         px-3 py-1
         text-sm font-normal
-        text-[var(--color-yg-primary)]
+        text-yg-primary
       "
     >
       {label}

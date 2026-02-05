@@ -1,5 +1,3 @@
-// UI 표시용 옵션들
-
 // 결제 방법 옵션
 export const PAYMENT_OPTIONS = [
   { value: 'CARD', label: '신용카드' },

@@ -1,65 +1,81 @@
 'use client';
 import '@/app/globals.css';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import * as PortOne from '@portone/browser-sdk/v2';
 import ItemList from '@/components/subscription/ItemList';
 import SectionCard from '@/components/subscription/SectionCard';
-import Dropdown from '@/components/subscription/Dropdown';
+import Dropdown from '@/components/common/Dropdown';
 import EditableInfoSection from '@/components/subscription/EditableInfoSection';
 import CouponPointSection from '@/components/subscription/CouponPointSection';
+import useUserStore from '@/store/userStore';
 import { PAYMENT_OPTIONS, FREE_SHIPPING_THRESHOLD, SHIPPING_FEE } from '@/lib/subscription/constants';
+import type { RecommendedProduct, SubscriptionProduct, OrdererInfo, ShippingInfo, PaymentMethod } from '@/types/subscription';
 
 export default function Subscription() {
   const router = useRouter();
-
-  // 상품 데이터 (실제로는 API에서 가져올 데이터)
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: '그린몬스터 다이어트 스페셜 2 가르시니아 900 112정',
-      price: 12700,
-      quantity: 1,
-      checked: true,
-    },
-    {
-      id: 2,
-      name: '루테인 지아잔틴 GR 4박스 4개월분 캡슐',
-      price: 72000,
-      quantity: 1,
-      checked: true,
-    },
-  ]);
-
-  // 쿠폰/포인트
+  const hasLoadedRef = useRef(false);
+  const user = useUserStore((state) => state.user);
+  const [products, setProducts] = useState<SubscriptionProduct[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [coupon, setCoupon] = useState('');
   const [point, setPoint] = useState('');
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [pointUsed, setPointUsed] = useState(0);
   const [availablePoints] = useState(10000);
-
-  // 구매 동의
   const [agreed, setAgreed] = useState(false);
-
-  // 주문자 정보
-  const [ordererInfo, setOrdererInfo] = useState({
-    name: '홍길동',
-    phone: '01012345678',
-    email: 'user@gmail.com',
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('');
+  const [ordererInfo, setOrdererInfo] = useState<OrdererInfo>({ 
+    name: user?.name || '사용자 이름',
+    phone: user?.phone || '사용자 전화번호',
+    email: user?.email || '사용자 이메일' });
+  const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({ 
+    name: user?.name || '수령자 이름', 
+    phone: user?.phone || '수령자 전화번호', 
+    address: user?.address || '수령지 주소', 
+    addressDetail: user?.addressDetail || '수령지 상세주소'
   });
 
-  // 배송 정보
-  const [shippingInfo, setShippingInfo] = useState({
-    name: '홍길동',
-    phone: '01012345678',
-    address1: '서울 종로구 종로3길17',
-    address2: '광화문D타워 D1동 16층, 17층',
-  });
+  useEffect(() => {
+    // Strict Mode로 인한 중복 실행 방지
+    if (hasLoadedRef.current) return;
+    hasLoadedRef.current = true;
 
-  // 결제 방법
-  const [paymentMethod, setPaymentMethod] = useState<'CARD' | 'VIRTUAL_ACCOUNT' | 'TRANSFER' | ''>('');
+    loadRecommendedProducts();
+  }, []);
 
-  // 상품 관리
+  const loadRecommendedProducts = () => {
+    setIsLoadingProducts(true);
+
+    try {
+      const savedProducts = sessionStorage.getItem('recommendedProducts');
+      
+      if (!savedProducts) {
+        setProducts([]);
+        return;
+      }
+
+      const recommendedProducts = JSON.parse(savedProducts) as RecommendedProduct[];
+
+      const subscriptionProducts: SubscriptionProduct[] = recommendedProducts.map((product, index) => ({
+        id: index + 1,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        checked: true,
+        imageUrl: product.imageUrl,
+      }));
+
+      setProducts(subscriptionProducts);
+      sessionStorage.removeItem('recommendedProducts');
+    } catch (error) {
+      console.error('추천 상품 로드 오류:', error);
+      setProducts([]);
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  };
+
   const toggleCheck = (id: number) => {
     setProducts(products.map((p) => (p.id === id ? { ...p, checked: !p.checked } : p)));
   };
@@ -72,7 +88,6 @@ export default function Subscription() {
     setProducts(products.map((p) => (p.id === id && p.quantity > 1 ? { ...p, quantity: p.quantity - 1 } : p)));
   };
 
-  // 계산 함수
   const calculateProductTotal = () => {
     return products.filter((p) => p.checked).reduce((sum, p) => sum + p.price * p.quantity, 0);
   };
@@ -86,7 +101,6 @@ export default function Subscription() {
     return calculateProductTotal() - couponDiscount - pointUsed + calculateShippingFee();
   };
 
-  // 쿠폰 적용
   const applyCoupon = () => {
     if (coupon === '') {
       alert('쿠폰 코드를 입력해주세요.');
@@ -102,7 +116,6 @@ export default function Subscription() {
     }
   };
 
-  // 포인트 전액 사용
   const useAllPoints = () => {
     const productTotal = calculateProductTotal() - couponDiscount;
     const maxUsablePoints = Math.min(availablePoints, productTotal);
@@ -111,7 +124,6 @@ export default function Subscription() {
     alert(`${maxUsablePoints.toLocaleString()}원 포인트가 적용되었습니다!`);
   };
 
-  // 포인트 입력 처리
   const handlePointChange = (value: string) => {
     const numValue = parseInt(value) || 0;
     const productTotal = calculateProductTotal() - couponDiscount;
@@ -129,9 +141,7 @@ export default function Subscription() {
     setPointUsed(numValue);
   };
 
-  // PortOne 결제 요청
   const handlePayment = async () => {
-    // 검증
     if (!agreed) {
       alert('개인정보 수집 및 이용에 동의해주세요.');
       return;
@@ -148,15 +158,9 @@ export default function Subscription() {
       return;
     }
 
-    // 주문 이름 생성
-    const orderName =
-      selectedProducts.length === 1
-        ? selectedProducts[0].name
-        : `${selectedProducts[0].name} 외 ${selectedProducts.length - 1}건`;
+    const orderName = selectedProducts.length === 1 ? selectedProducts[0].name : `${selectedProducts[0].name} 외 ${selectedProducts.length - 1}건`;
 
-    // 포트원 결제 요청
     try {
-      // 기본 결제 파라미터
       const baseParams = {
         storeId: 'store-e4038486-8d83-41a5-acf1-844a009e0d94',
         channelKey: 'channel-key-ebe7daa6-4fe4-41bd-b17d-3495264399b5',
@@ -173,66 +177,21 @@ export default function Subscription() {
         },
       };
 
-      // 가상계좌 결제 시 추가 정보
-      const paymentParams =
-        paymentMethod === 'VIRTUAL_ACCOUNT'
-          ? {
-              ...baseParams,
-              virtualAccount: {
-                accountExpiry: {
-                  validHours: 48, // 48시간 유효
-                },
-                cashReceiptType: 'PERSONAL' as const, // 개인 소득공제용
-                customerIdentifier: ordererInfo.phone, // 휴대폰 번호
-              },
-            }
-          : baseParams;
+      const paymentParams = paymentMethod === 'VIRTUAL_ACCOUNT' ? { ...baseParams, virtualAccount: { accountExpiry: { validHours: 48 }, cashReceiptType: 'PERSONAL' as const, customerIdentifier: ordererInfo.phone } } : baseParams;
 
       const response = await PortOne.requestPayment(paymentParams);
 
-      // response가 없는 경우 처리
       if (!response) {
         alert('결제 응답을 받지 못했습니다. 다시 시도해주세요.');
         return;
       }
 
-      // 결제 결과 처리
       if (response.code !== undefined) {
-        // 오류 발생
         alert(`결제 실패: ${response.message}`);
         return;
       }
 
-      // 결제 성공 - 서버에 결제 정보 전달 및 검증
-      // TODO: 실제 서버 엔드포인트 구현 필요
-      // const notified = await fetch(`${SERVER_BASE_URL}/payment/complete`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     paymentId: response.paymentId,
-      //     ordererInfo,
-      //     shippingInfo,
-      //     products: selectedProducts,
-      //     couponDiscount,
-      //     pointUsed,
-      //   }),
-      // });
-
-      // 임시: sessionStorage에 저장 후 결제 완료 페이지로 이동
-      sessionStorage.setItem(
-        'paymentInfo',
-        JSON.stringify({
-          paymentId: response.paymentId,
-          products: selectedProducts,
-          totalAmount: calculateFinalTotal(),
-          paymentMethod: paymentMethod,
-          ordererInfo: ordererInfo,
-          shippingInfo: shippingInfo,
-          couponDiscount: couponDiscount,
-          pointUsed: pointUsed,
-          shippingFee: calculateShippingFee(),
-        })
-      );
+      sessionStorage.setItem('paymentInfo', JSON.stringify({ paymentId: response.paymentId, products: selectedProducts, totalAmount: calculateFinalTotal(), paymentMethod: paymentMethod, ordererInfo: ordererInfo, shippingInfo: shippingInfo, couponDiscount: couponDiscount, pointUsed: pointUsed, shippingFee: calculateShippingFee() }));
 
       router.push('/subscription/complete');
     } catch (error) {
@@ -241,121 +200,114 @@ export default function Subscription() {
     }
   };
 
-  return (
-    <>
-      <div className="w-full h-screen bg-cover bg-fixed bg-white my-8 overflow-x-hidden">
-        <main>
-          <div className="min-w-6xl mx-auto flex lg:px-40 2xl:px-80 py-5 gap-7.5">
-            {/* 왼쪽 영역 */}
-            <section className="w-79/120 min-w-175 flex flex-col gap-6">
-              {/* 1. 주문 상품 정보 */}
-              <SectionCard title="주문 상품 목록">
-                <ItemList
-                  products={products}
-                  onToggleCheck={toggleCheck}
-                  onIncrease={increaseQuantity}
-                  onDecrease={decreaseQuantity}
-                />
-              </SectionCard>
-
-              {/* 2. 주문자 정보 */}
-              <EditableInfoSection
-                title="주문자 정보"
-                type="orderer"
-                data={ordererInfo}
-                onSave={(data) => setOrdererInfo(data as typeof ordererInfo)}
-              />
-
-              {/* 3. 배송 정보 */}
-              <EditableInfoSection
-                title="배송 정보"
-                type="shipping"
-                data={shippingInfo}
-                onSave={(data) => setShippingInfo(data as typeof shippingInfo)}
-              />
-
-              {/* 4. 쿠폰/포인트 */}
-              <CouponPointSection
-                coupon={coupon}
-                point={point}
-                availablePoints={availablePoints}
-                onCouponChange={setCoupon}
-                onPointChange={handlePointChange}
-                onApplyCoupon={applyCoupon}
-                onUseAllPoints={useAllPoints}
-              />
-            </section>
-
-            {/* 오른쪽 영역 */}
-            <section className="w-38/120 min-w-82.5 flex flex-col gap-6">
-              {/* 5. 총 결제 금액 */}
-              <SectionCard title="총 결제 금액">
-                <ul>
-                  <li className="flex justify-between my-1">
-                    <p className="text-yg-darkgray whitespace-nowrap">상품 가격</p>
-                    <p className="whitespace-nowrap">{calculateProductTotal().toLocaleString()}원</p>
-                  </li>
-                  <li className="flex justify-between my-1">
-                    <p className="text-yg-darkgray whitespace-nowrap">쿠폰 할인</p>
-                    <p className="whitespace-nowrap">−{couponDiscount.toLocaleString()}원</p>
-                  </li>
-                  <li className="flex justify-between my-1">
-                    <p className="text-yg-darkgray whitespace-nowrap">포인트 사용</p>
-                    <p className="whitespace-nowrap">−{pointUsed.toLocaleString()}원</p>
-                  </li>
-                  <li className="flex justify-between my-1">
-                    <p className="text-yg-darkgray whitespace-nowrap">배송비</p>
-                    <p className="whitespace-nowrap">+{calculateShippingFee().toLocaleString()}원</p>
-                  </li>
-                  <br />
-                  <li className="flex justify-between">
-                    <p className="text-lg whitespace-nowrap">총 결제 금액</p>
-                    <p className="text-lg font-bold text-yg-primary whitespace-nowrap">
-                      {calculateFinalTotal().toLocaleString()}원
-                    </p>
-                  </li>
-                </ul>
-              </SectionCard>
-
-              {/* 6. 결제 방법 */}
-              <SectionCard title="결제 방법">
-                <div className="flex flex-col gap-4">
-                  <Dropdown
-                    options={PAYMENT_OPTIONS}
-                    value={paymentMethod}
-                    onChange={(value) => setPaymentMethod(value as typeof paymentMethod)}
-                    placeholder="결제 방법 선택하기"
-                  />
-                </div>
-              </SectionCard>
-
-              {/* 7. 구매 동의 */}
-              <SectionCard title="구매 동의">
-                <div className="flex items-baseline gap-2">
-                  <input
-                    type="checkbox"
-                    id="agreement"
-                    className="agreement"
-                    checked={agreed}
-                    onChange={(e) => setAgreed(e.target.checked)}
-                  />
-                  <label htmlFor="agreement" className="mb-0">
-                    [필수] 개인정보 수집 및 이용에 동의합니다.
-                  </label>
-                </div>
-              </SectionCard>
-
-              {/* 8. 결제하기 */}
-              <button
-                className="bg-yg-primary rounded-[50px] text-yg-white font-semibold py-3 shadow-lg hover:bg-opacity-90 transition"
-                onClick={handlePayment}
-              >
-                결제하기
-              </button>
-            </section>
-          </div>
-        </main>
+  if (isLoadingProducts) {
+    return (
+      <div className="w-full h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-yg-primary mb-4"></div>
+          <p className="text-lg text-yg-darkgray">추천 상품을 불러오는 중...</p>
+        </div>
       </div>
-    </>
+    );
+  }
+
+  // 구독할 상품이 없는 경우
+  if (products.length === 0) {
+    return (
+      <div className="w-full min-h-screen bg-white flex items-center justify-center">
+        <div className="max-w-md w-full">
+          <div className="p-15 shadow-lg rounded-[50px] bg-yg-white text-center">
+            {/* 아이콘 */}
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 bg-yg-lightgray rounded-full flex items-center justify-center">
+                <svg className="w-10 h-10 text-yg-darkgray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* 메시지 */}
+            <h2 className="text-2xl font-bold mb-3">나에게 맞는 영양제를 알아보아요</h2>
+            <p className="text-yg-darkgray mb-8">
+              AI 설문을 통해 맞춤 영양제를 추천받거나,<br />
+              상품 목록에서 직접 구독할 상품을 선택해보세요.
+            </p>
+
+            {/* 버튼 */}
+            <div className="flex flex-col gap-3">
+              <button onClick={() => router.push('/survey')} className="w-full bg-yg-primary rounded-[50px] text-yg-white font-semibold py-3 shadow-lg hover:bg-opacity-90 transition">
+                AI 추천받기
+              </button>
+              <button onClick={() => router.push('/products')} className="w-full bg-yg-white rounded-[50px] text-yg-primary font-semibold py-3 shadow-lg border border-yg-primary hover:bg-opacity-90 transition">
+                상품 목록 둘러보기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full bg-cover bg-fixed bg-white my-8">
+      <main>
+        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row py-5 gap-8">
+          <section className="w-full flex flex-col gap-6">
+            <SectionCard title="주문 상품 목록">
+              <ItemList products={products} onToggleCheck={toggleCheck} onIncrease={increaseQuantity} onDecrease={decreaseQuantity} />
+            </SectionCard>
+
+            <EditableInfoSection title="주문자 정보" type="orderer" data={ordererInfo} onSave={(data) => setOrdererInfo(data as typeof ordererInfo)} readOnly={true} />
+
+            <EditableInfoSection title="배송 정보" type="shipping" data={shippingInfo} onSave={(data) => setShippingInfo(data as typeof shippingInfo)} />
+
+            <CouponPointSection coupon={coupon} point={point} availablePoints={availablePoints} onCouponChange={setCoupon} onPointChange={handlePointChange} onApplyCoupon={applyCoupon} onUseAllPoints={useAllPoints} />
+          </section>
+
+          <section className="w-full flex flex-col gap-6">
+            <SectionCard title="총 결제 금액">
+              <ul>
+                <li className="flex justify-between my-1">
+                  <p className="text-yg-darkgray whitespace-nowrap">상품 가격</p>
+                  <p className="whitespace-nowrap">{calculateProductTotal().toLocaleString()}원</p>
+                </li>
+                <li className="flex justify-between my-1">
+                  <p className="text-yg-darkgray whitespace-nowrap">쿠폰 할인</p>
+                  <p className="whitespace-nowrap">−{couponDiscount.toLocaleString()}원</p>
+                </li>
+                <li className="flex justify-between my-1">
+                  <p className="text-yg-darkgray whitespace-nowrap">포인트 사용</p>
+                  <p className="whitespace-nowrap">−{pointUsed.toLocaleString()}원</p>
+                </li>
+                <li className="flex justify-between my-1">
+                  <p className="text-yg-darkgray whitespace-nowrap">배송비</p>
+                  <p className="whitespace-nowrap">+{calculateShippingFee().toLocaleString()}원</p>
+                </li>
+                <br />
+                <li className="flex justify-between">
+                  <p className="text-lg whitespace-nowrap">총 결제 금액</p>
+                  <p className="text-lg font-bold text-yg-primary whitespace-nowrap">{calculateFinalTotal().toLocaleString()}원</p>
+                </li>
+              </ul>
+            </SectionCard>
+
+            <SectionCard title="결제 방법">
+              <div className="flex flex-col gap-4">
+                <Dropdown options={PAYMENT_OPTIONS} value={paymentMethod} onChange={(value) => setPaymentMethod(value as typeof paymentMethod)} placeholder="결제 방법 선택하기" />
+              </div>
+            </SectionCard>
+
+            <SectionCard title="구매 동의">
+              <div className="flex items-baseline gap-2">
+                <input type="checkbox" id="agreement" className="agreement" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
+                <label htmlFor="agreement" className="mb-0">[필수] 개인정보 수집 및 이용에 동의합니다.</label>
+              </div>
+            </SectionCard>
+
+            <button className="bg-yg-primary rounded-[50px] text-yg-white font-semibold py-3 shadow-lg hover:bg-opacity-90 transition" onClick={handlePayment}>결제하기</button>
+          </section>
+        </div>
+      </main>
+    </div>
   );
 }

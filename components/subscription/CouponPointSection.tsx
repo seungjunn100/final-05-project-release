@@ -23,9 +23,9 @@ export default function CouponPointSection({
     <SectionCard title="쿠폰/포인트">
       <div className="flex flex-col gap-6">
         {/* 쿠폰 */}
-        <div className="flex justify-between items-end">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="coupon">쿠폰</label>
+        <div className="flex justify-between items-end gap-6">
+          <div className="w-full flex flex-col gap-2">
+            <label htmlFor="coupon" className='font-semibold text-yg-primary'>쿠폰</label>
             <input
               id="coupon"
               className="coupon px-5 py-3 shadow-lg rounded-[50px] border border-yg-primary"
@@ -43,12 +43,13 @@ export default function CouponPointSection({
         </div>
 
         {/* 포인트 */}
-        <div className="flex justify-between items-end">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="point">포인트 (보유: {availablePoints.toLocaleString()}P)</label>
+        <div className="flex justify-between items-end gap-6">
+          <div className="w-full flex flex-col gap-2">
+            <label htmlFor="point" className='font-semibold text-yg-primary'>포인트 (보유: {availablePoints.toLocaleString()}P)</label>
             <input
               id="point"
               type="number"
+              min={0}
               className="point px-5 py-3 shadow-lg rounded-[50px] border border-yg-primary"
               value={point}
               onChange={(e) => onPointChange(e.target.value)}

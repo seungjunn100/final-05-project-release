@@ -17,8 +17,13 @@ export default function ProductsPage() {
       { id: 'diet', name: '다이어트' },
       { id: 'eye', name: '눈건강' },
       { id: 'gut', name: '장건강' },
-      { id: 'immune', name: '면역' },
-      { id: 'skin', name: '피부' },
+      { id: 'immune_fatigue', name: '면역•피로' },
+      { id: 'skin_hair', name: '피부•모발' },
+      { id: 'women', name: '여성건강' },
+      { id: 'brain', name: '뇌•집중력' },
+      { id: 'blood_flow', name: '혈액순환' },
+      { id: 'bone_joint', name: '뼈•관절' },
+      { id: 'general', name: '종합건강' },
     ],
     []
   );
@@ -48,7 +53,8 @@ export default function ProductsPage() {
         if (!alive) return;
 
         if (res.ok === 1) {
-          setAllProducts(res.data ?? []);
+          console.log('products : ', res.item);
+          setAllProducts(res.item ?? []);
         } else {
           setAllProducts([]);
           setError(res.message ?? '상품을 불러오는데 실패했습니다.');
@@ -68,6 +74,9 @@ export default function ProductsPage() {
     return () => {
       alive = false;
     };
+
+    console.log('allProducts:', allProducts);
+    console.log('selectedCategoryId:', selectedCategoryId);
   }, [retryKey]);
 
   const handleRetry = () => setRetryKey((k) => k + 1);
@@ -100,7 +109,6 @@ export default function ProductsPage() {
             정렬
           </label>
           <select id="sort" value={sort} onChange={(e) => setSort(e.target.value as SortType)} className="h-9 rounded-lg border border-yg-lightgray bg-white px-3 text-sm" aria-label="상품 정렬 방식 선택">
-            <option value="popular">인기순</option>
             <option value="priceLow">가격 낮은순</option>
             <option value="priceHigh">가격 높은순</option>
           </select>

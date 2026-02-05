@@ -28,21 +28,24 @@ export default function QuestionRenderer({ question, value, onChange }: Props) {
 
     /* ================= categorySelect ================= */
     case 'categorySelect': {
-      const v = Array.isArray(value) ? value : [];
+      const v = Array.isArray(value) ? (value as string[]) : [];
+      const max = typeof question.maxSelect === 'number' ? question.maxSelect : 2; // 기본 2
 
-      return <Category categories={question.options} value={v} maxSelect={question.maxSelect} onChange={(next) => onChange(next)} />;
+      return <Category categories={question.options} value={v} maxSelect={max} onChange={(next) => onChange(next)} />;
     }
 
     /* ================= multiChoice ================= */
     case 'multiChoice': {
-      const v = Array.isArray(value) ? value : [];
+      const v = Array.isArray(value) ? (value as string[]) : [];
+      const max = typeof question.maxSelect === 'number' ? question.maxSelect : undefined;
 
-      return <MultiChoice options={question.options} value={v} maxSelect={question.maxSelect} onChange={(next) => onChange(next)} />;
+      return <MultiChoice options={question.options} value={v} maxSelect={max} onChange={(next) => onChange(next)} />;
     }
 
     /* ================= scaleChoice ================= */
     case 'scaleChoice': {
       const v = typeof value === 'number' ? value : undefined;
+
       const choices = question.scaleChoices?.map((label, idx) => ({
         value: idx + 1,
         label,

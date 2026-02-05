@@ -1,12 +1,5 @@
 import TabCard from './TabCard';
-
-interface SubscriptionInfo {
-  isSubscribed: boolean;
-  productName: string;
-  dosage: string;
-  paymentDate: string;
-  nextPaymentDate: string;
-}
+import type { SubscriptionInfo } from '@/types/mypage';
 
 interface SubscriptionTabProps {
   subscriptionInfo: SubscriptionInfo;

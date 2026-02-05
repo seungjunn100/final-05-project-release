@@ -1,14 +1,17 @@
+// components/products/ProductSummary.tsx
+import React from 'react';
+
 type ProductSummaryProps = {
   name: string;
   summary: string;
   brand?: string;
   rating?: number;
-  reviewCount?: number;
   imageUrl?: string;
   tags?: string[];
+  price?: number;
 };
 
-export default function ProductSummary({ name, summary, brand, rating, reviewCount, imageUrl, tags }: ProductSummaryProps) {
+export default function ProductSummary({ name, summary, brand, rating, imageUrl, tags, price }: ProductSummaryProps) {
   return (
     <section className="rounded-lg bg-yg-white p-6 shadow">
       <div className="grid grid-cols-12 gap-6">
@@ -31,12 +34,7 @@ export default function ProductSummary({ name, summary, brand, rating, reviewCou
           <h1 className="text-2xl font-bold text-yg-black">{name}</h1>
           <p className="mt-2 text-sm leading-6 text-yg-darkgray">{summary}</p>
 
-          {(rating !== undefined || reviewCount !== undefined) && (
-            <div className="mt-3 flex items-center gap-2 text-sm">
-              {rating !== undefined && <span className="font-semibold text-yg-black">★ {rating}</span>}
-              {reviewCount !== undefined && <span className="text-yg-darkgray">리뷰 {reviewCount.toLocaleString()}</span>}
-            </div>
-          )}
+          {price !== undefined && <div className="mt-4 text-lg font-bold text-green-600">{price.toLocaleString()}원</div>}
         </div>
       </div>
     </section>

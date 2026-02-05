@@ -11,8 +11,8 @@ interface OrdererInfo extends BaseInfo {
 }
 
 interface ShippingInfo extends BaseInfo {
-  address1: string;
-  address2: string;
+  address: string;
+  addressDetail: string;
 }
 
 type InfoData = OrdererInfo | ShippingInfo;
@@ -22,9 +22,10 @@ interface EditableInfoSectionProps {
   type: 'orderer' | 'shipping';
   data: InfoData;
   onSave: (data: InfoData) => void;
+  readOnly?: boolean;
 }
 
-export default function EditableInfoSection({ title, type, data, onSave }: EditableInfoSectionProps) {
+export default function EditableInfoSection({ title, type, data, onSave, readOnly = false }: EditableInfoSectionProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(data);
 
@@ -41,7 +42,7 @@ export default function EditableInfoSection({ title, type, data, onSave }: Edita
     // 배송 정보 검증
     if (type === 'shipping') {
       const shippingData = formData as ShippingInfo;
-      if (!shippingData.name || !shippingData.phone || !shippingData.address1) {
+      if (!shippingData.name || !shippingData.phone || !shippingData.address || !shippingData.addressDetail) {
         alert('필수 정보를 입력해주세요.');
         return;
       }
@@ -119,8 +120,8 @@ export default function EditableInfoSection({ title, type, data, onSave }: Edita
                   id="shipping-address1"
                   type="text"
                   className="px-5 py-3 shadow-lg rounded-[50px] border border-yg-primary"
-                  value={shippingData.address1}
-                  onChange={(e) => setFormData({ ...formData, address1: e.target.value } as InfoData)}
+                  value={shippingData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value } as InfoData)}
                 />
               </div>
               <div className="flex flex-col gap-2">
@@ -131,8 +132,8 @@ export default function EditableInfoSection({ title, type, data, onSave }: Edita
                   id="shipping-address2"
                   type="text"
                   className="px-5 py-3 shadow-lg rounded-[50px] border border-yg-primary"
-                  value={shippingData.address2}
-                  onChange={(e) => setFormData({ ...formData, address2: e.target.value } as InfoData)}
+                  value={shippingData.addressDetail}
+                  onChange={(e) => setFormData({ ...formData, addressDetail: e.target.value } as InfoData)}
                 />
               </div>
             </>
@@ -164,17 +165,19 @@ export default function EditableInfoSection({ title, type, data, onSave }: Edita
             {type === 'orderer' && <p className="text-yg-darkgray">{ordererData.email}</p>}
             {type === 'shipping' && (
               <>
-                <p className="text-lg">{shippingData.address1}</p>
-                <p className="text-lg">{shippingData.address2}</p>
+                <p className="text-lg">{shippingData.address}</p>
+                <p className="text-lg">{shippingData.addressDetail}</p>
               </>
             )}
           </div>
-          <button
-            className="bg-yg-primary px-2 w-18 h-12 rounded-[50px] font-semibold text-yg-white shadow-lg"
-            onClick={() => setIsEditing(true)}
-          >
-            수정
-          </button>
+          {!readOnly && (
+            <button
+              className="bg-yg-primary px-2 w-18 h-12 rounded-[50px] font-semibold text-yg-white shadow-lg"
+              onClick={() => setIsEditing(true)}
+            >
+              수정
+            </button>
+          )}
         </div>
       )}
     </SectionCard>
