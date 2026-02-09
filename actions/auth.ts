@@ -17,6 +17,7 @@ export async function signup(state: UserActionState, formData: FormData): Promis
       name: formData.get('name'),
       email: formData.get('email'),
       password: formData.get('password'),
+      phone: formData.get('phone'),
     };
 
     res = await fetch(`${API_URL}/users`, {
@@ -67,7 +68,7 @@ export async function login(state: LoginActionState, formdata: FormData): Promis
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
-        maxAge: 60 * 15, // 15분
+        maxAge: 60 * 30, // 30분
       });
 
       cookieStore.set('refreshToken', refreshToken, {

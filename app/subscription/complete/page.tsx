@@ -1,7 +1,9 @@
 'use client';
 import '@/app/globals.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { addSubscription } from '@/lib/api/subscription';
+import { sendPaymentConfirmationEmail } from '@/lib/api/email';
 
 interface Product {
   id: number;
@@ -9,6 +11,7 @@ interface Product {
   price: number;
   quantity: number;
   checked: boolean;
+  imageUrl?: string;
 }
 
 interface OrdererInfo {
@@ -47,10 +50,85 @@ const getPaymentInfo = (): PaymentInfo | null => {
 
 export default function PaymentComplete() {
   const [paymentInfo] = useState<PaymentInfo | null>(getPaymentInfo);
+  const [subscriptionAdded, setSubscriptionAdded] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+
+  // 구독 추가
+  useEffect(() => {
+    const addSubscriptionData = async () => {
+      if (!paymentInfo || subscriptionAdded) return;
+
+      const products = paymentInfo.products.map((p) => ({
+        productId: String(p.id),
+        name: p.name,
+        price: p.price,
+        imageUrl: p.imageUrl,
+        quantity: p.quantity, // 수량 추가
+      }));
+
+      const result = await addSubscription(products);
+
+      if (result.ok === 1) {
+        console.log('✅ 구독 추가 완료');
+        setSubscriptionAdded(true);
+      } else {
+        console.error('❌ 구독 추가 실패:', result.message);
+      }
+    };
+
+    addSubscriptionData();
+  }, [paymentInfo, subscriptionAdded]);
+
+  // 이메일 전송 (한 번만)
+  useEffect(() => {
+    const sendPaymentEmail = async () => {
+      if (!paymentInfo || emailSent) return;
+
+      // sessionStorage로 이메일 전송 여부 확인 (새로고침/뒤로가기 방지)
+      const emailSentFlag = sessionStorage.getItem('paymentEmailSent');
+      if (emailSentFlag === 'true') {
+        console.log('ℹ️ 이미 이메일이 전송되었습니다');
+        setEmailSent(true);
+        return;
+      }
+
+      // 이메일 전송
+      const result = await sendPaymentConfirmationEmail({
+        userEmail: paymentInfo.ordererInfo.email,
+        userName: paymentInfo.ordererInfo.name,
+        products: paymentInfo.products.map(p => ({
+          name: p.name,
+          price: p.price,
+          quantity: p.quantity,
+        })),
+        totalAmount: paymentInfo.totalAmount,
+        paymentMethod: paymentInfo.paymentMethod,
+        shippingName: paymentInfo.shippingInfo.name,
+        shippingPhone: paymentInfo.shippingInfo.phone,
+        shippingAddress1: paymentInfo.shippingInfo.address1,
+        shippingAddress2: paymentInfo.shippingInfo.address2,
+        couponDiscount: paymentInfo.couponDiscount || 0,
+        pointUsed: paymentInfo.pointUsed || 0,
+        shippingFee: paymentInfo.shippingFee || 0,
+      });
+
+      if (result.ok === 1) {
+        console.log('✅ 이메일 전송 완료');
+        sessionStorage.setItem('paymentEmailSent', 'true');
+        setEmailSent(true);
+      } else {
+        console.error('❌ 이메일 전송 실패:', result.message);
+      }
+    };
+
+    sendPaymentEmail();
+  }, [paymentInfo, emailSent]);
+
 
   const handleGoHome = () => {
     // sessionStorage 정리
     sessionStorage.removeItem('paymentInfo');
+    sessionStorage.removeItem('paymentEmailSent');
   };
 
   if (!paymentInfo) {
@@ -127,14 +205,20 @@ export default function PaymentComplete() {
           </div>
 
           {/* 버튼 */}
-          <div className='className="w-full bg-yg-primary rounded-[50px] text-yg-white font-semibold py-3 shadow-lg hover:bg-opacity-90 transition'>
+          <div className="flex gap-4 mt-8">
             <Link
               href="/"
               onClick={handleGoHome}
-              className="w-full block text-center"
+              className="flex-1 bg-yg-white rounded-[50px] text-yg-primary font-semibold py-3 shadow-lg hover:bg-yg-lightgray transition text-center"
             >
               홈으로
-          </Link>
+            </Link>
+            <Link
+              href="/mypage?tab=subscription&refresh=true"
+              className="flex-1 bg-yg-primary rounded-[50px] text-yg-white font-semibold py-3 shadow-lg hover:bg-opacity-90 transition text-center"
+            >
+              구독 관리하기
+            </Link>
           </div>
         </div>
       </div>

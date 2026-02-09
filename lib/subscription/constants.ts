@@ -7,4 +7,4 @@ export const PAYMENT_OPTIONS = [
 
 // 배송비 기준
 export const FREE_SHIPPING_THRESHOLD = 50000;
-export const SHIPPING_FEE = 2500;
+export const SHIPPING_FEE = 100;

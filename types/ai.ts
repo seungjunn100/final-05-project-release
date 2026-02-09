@@ -26,3 +26,13 @@ export type AiRecommendResponse = {
   }>;
   top3: string[];
 };
+
+export type AiAnswerRequest = {
+  questionKey: 'summary' | 'howTo' | 'caution' | 'custom';
+  payloadSummary: string;
+  top3Products: {
+    name: string;
+    description?: string;
+  }[];
+  customQuestion?: string;
+};

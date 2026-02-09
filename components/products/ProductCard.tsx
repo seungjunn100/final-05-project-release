@@ -30,7 +30,7 @@ export default function ProductCard({ id, name, price, imageUrl, badges = [], hr
         {badges.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
             {badges.map((badge) => (
-              <span key={badge} className="rounded-full bg-yg-primary px-3 py-1 text-xs text-white">
+              <span key={badge} className="rounded-full bg-yg-secondary px-3 py-1 text-xs text-white">
                 {badge}
               </span>
             ))}

@@ -11,7 +11,7 @@ import UserInfoTab from '@/components/mypage/UserInfoTab';
 import SubscriptionTab from '@/components/mypage/SubscriptionTab';
 import SurveyTab from '@/components/mypage/SurveyTab';
 import Modal from '@/components/mypage/Modal';
-import type { UserInfo, SubscriptionInfo, TabType } from '@/types/mypage';
+import type { UserInfo, TabType } from '@/types/mypage';
 
 export default function MyPage() {
   const router = useRouter();
@@ -25,13 +25,6 @@ export default function MyPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [activeTab, setActiveTab] = useState<TabType>('info');
-  const [subscriptionInfo] = useState<SubscriptionInfo>({
-    isSubscribed: true,
-    productName: '그린몬스터 다이어트 스페셜 2',
-    dosage: '900mg 112정',
-    paymentDate: '2026.01.15',
-    nextPaymentDate: '2026.02.15',
-  });
 
   // 조건부 return으로 인한 오류 방지
   const userInfo = useMemo<UserInfo>(
@@ -66,7 +59,7 @@ export default function MyPage() {
     );
   }
 
- // 사용자 정보 수정 저장
+  // 사용자 정보 수정 저장
   const handleSaveUserInfo = async (info: UserInfo) => {
     if (!user?._id) {
       alert('사용자 정보를 찾을 수 없습니다.');
@@ -171,10 +164,10 @@ export default function MyPage() {
 
             {/* 사용자 정보 탭 */}
             {activeTab === 'info' && <UserInfoTab userInfo={userInfo} onSave={handleSaveUserInfo} />}
-            
+
             {/* 구독 상태 탭 */}
-            {activeTab === 'subscription' && <SubscriptionTab subscriptionInfo={subscriptionInfo} onNavigateToSubscription={() => router.push('/subscription')} />}
-            
+            {activeTab === 'subscription' && <SubscriptionTab onNavigateToSubscription={() => router.push('/subscription')} />}
+
             {/* 설문 정보 탭 */}
             {activeTab === 'survey' && <SurveyTab onSurveyClick={handleSurveyClick} />}
           </div>
@@ -187,7 +180,17 @@ export default function MyPage() {
       </Modal>
 
       {/* 회원탈퇴 모달 */}
-      <Modal isOpen={showDeleteModal}onClose={() => { setShowDeleteModal(false); setDeleteConfirmText('') }} title="회원탈퇴" onConfirm={handleDeleteAccount} confirmText="탈퇴하기" confirmButtonClass="bg-yg-secondary">
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeleteConfirmText('');
+        }}
+        title="회원탈퇴"
+        onConfirm={handleDeleteAccount}
+        confirmText="탈퇴하기"
+        confirmButtonClass="bg-yg-secondary"
+      >
         <div className="bg-yg-secondary rounded-[50px] shadow-lg px-10 py-6 my-6">
           <h3 className="font-semibold mb-3 text-yg-white">⚠️ 주의사항</h3>
           <ul className="space-y-2 text-sm text-yg-white">

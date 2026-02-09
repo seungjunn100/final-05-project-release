@@ -27,8 +27,9 @@ export default function Subscription() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('');
   const [ordererInfo, setOrdererInfo] = useState<OrdererInfo>({ 
     name: user?.name || '사용자 이름',
-    phone: user?.phone || '사용자 전화번호',
-    email: user?.email || '사용자 이메일' });
+    phone: user?.phone || '010-9977-6874',
+    email: user?.email || '사용자 이메일' 
+  });
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({ 
     name: user?.name || '수령자 이름', 
     phone: user?.phone || '수령자 전화번호', 
@@ -44,30 +45,52 @@ export default function Subscription() {
     loadRecommendedProducts();
   }, []);
 
-  const loadRecommendedProducts = () => {
+  const loadRecommendedProducts = async () => {
     setIsLoadingProducts(true);
 
     try {
+      // 1. sessionStorage에서 먼저 확인
       const savedProducts = sessionStorage.getItem('recommendedProducts');
       
-      if (!savedProducts) {
-        setProducts([]);
+      if (savedProducts) {
+        const recommendedProducts = JSON.parse(savedProducts) as RecommendedProduct[];
+        const subscriptionProducts: SubscriptionProduct[] = recommendedProducts.map((product) => ({
+          id: parseInt(product.id), // 실제 상품 ID 사용
+          name: product.name,
+          price: product.price,
+          quantity: 1,
+          checked: true,
+          imageUrl: product.imageUrl,
+        }));
+        setProducts(subscriptionProducts);
+        sessionStorage.removeItem('recommendedProducts');
+        setIsLoadingProducts(false);
         return;
       }
 
-      const recommendedProducts = JSON.parse(savedProducts) as RecommendedProduct[];
+      // 2. sessionStorage에 없으면 최근 설문 자동 확인
+      const { getSurveysFromServer } = await import('@/lib/api/survey');
+      const result = await getSurveysFromServer();
 
-      const subscriptionProducts: SubscriptionProduct[] = recommendedProducts.map((product, index) => ({
-        id: index + 1,
-        name: product.name,
-        price: product.price,
-        quantity: 1,
-        checked: true,
-        imageUrl: product.imageUrl,
-      }));
+      if (result.ok === 1 && result.item && result.item.length > 0) {
+        // 최근 설문이 있으면 자동으로 불러오기
+        const latestSurvey = result.item[0];
+        const recommendedProducts = latestSurvey.memo.supplements;
 
-      setProducts(subscriptionProducts);
-      sessionStorage.removeItem('recommendedProducts');
+        const subscriptionProducts: SubscriptionProduct[] = recommendedProducts.map((product) => ({
+          id: parseInt(product.id), // 실제 상품 ID 사용
+          name: product.name,
+          price: product.price,
+          quantity: 1,
+          checked: true,
+          imageUrl: product.imageUrl,
+        }));
+
+        setProducts(subscriptionProducts);
+      } else {
+        // 설문이 없으면 빈 배열
+        setProducts([]);
+      }
     } catch (error) {
       console.error('추천 상품 로드 오류:', error);
       setProducts([]);
@@ -108,7 +131,7 @@ export default function Subscription() {
     }
 
     if (coupon === 'WELCOME10') {
-      const discount = Math.floor(calculateProductTotal() * 0.1);
+      const discount = Math.floor(calculateProductTotal() * 0.5);
       setCouponDiscount(discount);
       alert(`쿠폰이 적용되었습니다! ${discount.toLocaleString()}원 할인`);
     } else {
@@ -141,6 +164,8 @@ export default function Subscription() {
     setPointUsed(numValue);
   };
 
+
+  // 실제 결제용 코드
   const handlePayment = async () => {
     if (!agreed) {
       alert('개인정보 수집 및 이용에 동의해주세요.');
@@ -158,6 +183,29 @@ export default function Subscription() {
       return;
     }
 
+    // 새로운 결제 시작: 이메일 플래그 초기화
+    sessionStorage.removeItem('paymentEmailSent');
+
+    /* 테스트용 코드 (주석처리됨)
+    // 테스트용: 결제 과정 스킵
+    const mockPaymentId = `test-payment-${crypto.randomUUID()}`;
+    
+    sessionStorage.setItem('paymentInfo', JSON.stringify({ 
+      paymentId: mockPaymentId, 
+      products: selectedProducts, 
+      totalAmount: calculateFinalTotal(), 
+      paymentMethod: paymentMethod, 
+      ordererInfo: ordererInfo, 
+      shippingInfo: shippingInfo, 
+      couponDiscount: couponDiscount, 
+      pointUsed: pointUsed, 
+      shippingFee: calculateShippingFee() 
+    }));
+
+    router.push('/subscription/complete');
+    */
+
+    // 실제 결제 코드
     const orderName = selectedProducts.length === 1 ? selectedProducts[0].name : `${selectedProducts[0].name} 외 ${selectedProducts.length - 1}건`;
 
     try {
@@ -191,7 +239,17 @@ export default function Subscription() {
         return;
       }
 
-      sessionStorage.setItem('paymentInfo', JSON.stringify({ paymentId: response.paymentId, products: selectedProducts, totalAmount: calculateFinalTotal(), paymentMethod: paymentMethod, ordererInfo: ordererInfo, shippingInfo: shippingInfo, couponDiscount: couponDiscount, pointUsed: pointUsed, shippingFee: calculateShippingFee() }));
+      sessionStorage.setItem('paymentInfo', JSON.stringify({ 
+        paymentId: response.paymentId, 
+        products: selectedProducts, 
+        totalAmount: calculateFinalTotal(), 
+        paymentMethod: paymentMethod, 
+        ordererInfo: ordererInfo, 
+        shippingInfo: shippingInfo, 
+        couponDiscount: couponDiscount, 
+        pointUsed: pointUsed, 
+        shippingFee: calculateShippingFee() 
+      }));
 
       router.push('/subscription/complete');
     } catch (error) {
@@ -215,7 +273,7 @@ export default function Subscription() {
   if (products.length === 0) {
     return (
       <div className="w-full min-h-screen bg-white flex items-center justify-center">
-        <div className="max-w-md w-full">
+        <div className="max-w-md w-full px-4">
           <div className="p-15 shadow-lg rounded-[50px] bg-yg-white text-center">
             {/* 아이콘 */}
             <div className="flex justify-center mb-6">

@@ -39,5 +39,6 @@ export function buildSurveyPayload(params: { answers: Record<string, unknown>; s
     },
     selectedCategories,
     categories,
+    summary: '',
   };
 }

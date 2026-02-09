@@ -7,12 +7,20 @@ export interface UserInfo {
   weight: string;
 }
 
+export interface SubscriptionProduct {
+  _id: string;
+  productId: string;
+  name: string;
+  price: number;
+  imageUrl?: string;
+  status: 'active' | 'paused';
+  nextPaymentDate: string;
+  startDate: string;
+}
+
 export interface SubscriptionInfo {
   isSubscribed: boolean;
-  productName: string;
-  dosage: string;
-  paymentDate: string;
-  nextPaymentDate: string;
+  products: SubscriptionProduct[];
 }
 
 export type TabType = 'info' | 'subscription' | 'survey';

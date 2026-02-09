@@ -9,10 +9,7 @@ export default function SectionCTA() {
           AI가 추천해주는 영양제를 구독하기 전에 <br />
           신규 회원 첫 가입 시 20% 할인 쿠폰을 증정해 드립니다.
         </p>
-        <Link
-          href="/survey"
-          className="inline-block px-7 py-2.5 font-medium text-[16px] text-white bg-yg-secondary rounded-full transition-all lg:hover:-translate-0.5 lg:hover:shadow-[3px_5px_0_rgba(0,0,0,0.2)] lg:active:translate-0 lg:active:shadow-[0_0_0_rgba(0,0,0,0.25)] lg:px-9 lg:py-3 lg:text-[18px]"
-        >
+        <Link href="/survey" className="inline-block px-7 py-2.5 font-medium text-[16px] text-white bg-yg-secondary rounded-full transition lg:hover:shadow-[2px_2px_10px_rgba(0,0,0,0.3)] lg:px-9 lg:py-3 lg:text-[18px]">
           AI 추천받기
         </Link>
       </div>

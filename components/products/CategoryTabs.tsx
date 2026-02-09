@@ -19,7 +19,7 @@ export default function CategoryTabs({ categories, selectedId, onSelect }: Props
       {categories.map((c) => {
         const active = c.id === selectedId;
         return (
-          <button key={c.id} type="button" aria-pressed={active} onClick={() => onSelect(c.id)} className={`shrink-0 rounded-full border px-4 py-2 text-sm transition ${active ? 'border-yg-primary bg-yg-primary text-white' : 'border-yg-lightgray bg-white text-yg-darkgray hover:bg-yg-white'}`}>
+          <button key={c.id} type="button" aria-pressed={active} onClick={() => onSelect(c.id)} className={`shrink-0 rounded-full border px-4 py-2 text-sm transition ${active ? 'border-yg-secondary bg-yg-secondary text-white' : 'border-yg-lightgray bg-white text-yg-darkgray hover:bg-[#f0b2a0]'}`}>
             {c.name}
           </button>
         );

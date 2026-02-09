@@ -84,3 +84,15 @@ export type UserActionState = UserInfoRes | ErrorRes | null;
 
 // 이메일 응답 타입
 export type EmailCheckRes = { ok: 1 } | { ok: 0; message: string };
+
+// 본인인증 응답 타입
+export interface CertifyRes {
+  code?: string;
+  identityVerificationId: string;
+  identityVerificationTxId: string;
+  message?: string;
+  transactionType: 'IDENTITY_VERIFICATION';
+}
+
+// 본인인증 응답 타입
+export type CertifyActionState = CertifyRes | undefined;

@@ -15,10 +15,7 @@ export default function SectionHero() {
             AI 검사로 나만의 컨디션에 맞는 영양제를 추천받고, <br />
             매달 맞춤형 영양 케어를 경험해보아요!
           </p>
-          <Link
-            href="/survey"
-            className="inline-block mt-5 px-7 py-2.5 font-medium text-[16px] text-white bg-yg-primary rounded-full transition-all lg:hover:-translate-0.5 lg:hover:shadow-[3px_5px_0_rgba(0,0,0,0.2)] lg:active:translate-0 lg:active:shadow-[0_0_0_rgba(0,0,0,0.25)] lg:px-9 lg:py-3 lg:text-[18px]"
-          >
+          <Link href="/survey" className="inline-block mt-5 px-7 py-2.5 font-medium text-[16px] text-white bg-yg-primary rounded-full transition lg:hover:shadow-[2px_2px_10px_rgba(0,0,0,0.3)] lg:px-9 lg:py-3 lg:text-[18px]">
             AI 추천받기
           </Link>
         </div>

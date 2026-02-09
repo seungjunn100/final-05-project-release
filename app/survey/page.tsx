@@ -1,12 +1,41 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import SurveyTitle from '@/components/survey/SurveyTitle';
 import ProgressBar from '@/components/survey/ProgressBar';
+import { getSurveyAttemptCount, increaseSurveyAttemptCount } from '@/lib/surveyAttempt';
+import useUserStore from '@/store/userStore';
 
 export default function SurveyStartPage() {
   const router = useRouter();
+
+  const { user, hydrated } = useUserStore();
+  const isLoggedIn = Boolean(user);
+
+  // 🔹 로그인 필요 상태
+  const [needLogin, setNeedLogin] = useState(false);
+
+  const handleStart = () => {
+    if (!hydrated) return;
+
+    const attemptCount = getSurveyAttemptCount();
+
+    // ❗ 비로그인 + 2회차부터 로그인 필요
+    if (!isLoggedIn && attemptCount >= 1) {
+      setNeedLogin(true);
+      return;
+    }
+
+    // ✅ 허용된 경우에만 시도 횟수 증가
+    increaseSurveyAttemptCount();
+    router.push('/survey/question');
+  };
+
+  const handleGoLogin = () => {
+    router.push('/login?next=/survey/question');
+  };
 
   return (
     <SurveyTitle title="설문 페이지">
@@ -30,9 +59,19 @@ export default function SurveyStartPage() {
         </p>
 
         {/* 시작하기 버튼 */}
-        <button type="button" className="mt-6 w-full max-w-md rounded-full bg-[var(--color-yg-primary)] py-4 text-base font-semibold text-white transition hover:opacity-90" onClick={() => router.push('/survey/question')}>
+        <button type="button" disabled={!hydrated} onClick={handleStart} className="mt-6 w-full max-w-md rounded-full bg-[var(--color-yg-primary)] py-4 text-base font-semibold text-white transition hover:opacity-90 disabled:opacity-50">
           시작하기
         </button>
+
+        {/* 🔔 로그인 안내 상태창 (버튼 제공형) */}
+        {needLogin && (
+          <div className="mt-4 w-full max-w-md rounded-xl border border-yg-primary bg-yg-lightgray px-4 py-4 text-center text-sm">
+            <p className="mb-3 font-medium text-yg-primary">AI 추천받기 2회부터는 로그인이 필요해요</p>
+            <button type="button" onClick={handleGoLogin} className="rounded-full bg-[var(--color-yg-primary)] px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90">
+              로그인하러 가기
+            </button>
+          </div>
+        )}
       </div>
     </SurveyTitle>
   );

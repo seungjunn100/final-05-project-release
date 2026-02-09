@@ -22,7 +22,7 @@ export default function TabsWrapper({ product }: Props) {
 
   return (
     <>
-      <div className="sticky top-16 z-20 bg-white">
+      <div className=" bg-white">
         <ProductInfoTabs active={activeTab} onChange={handleChangeTab} />
       </div>
       <ProductInfoSection features={product.mainFunctions || []} nutritionFacts={product.nutritionInfoExample?.nutrients || []} intake={product.intakeGuide} cautions={product.precautions || []} />

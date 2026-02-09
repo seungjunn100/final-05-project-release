@@ -14,9 +14,9 @@ const TEMP_SUMMARY = '설문 결과를 기반으로 카테고리별 추천 영�
 export default function SurveyHistoryDetailPage() {
   const router = useRouter();
   const params = useParams();
-  
+
   const targetId = params.id as string;
-  
+
   const [historyData, setHistoryData] = useState<SurveyHistoryItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -29,7 +29,7 @@ export default function SurveyHistoryDetailPage() {
     const loadSurveyData = async () => {
       setIsLoading(true);
       const result = await getSurveyByIdFromServer(targetId);
-      
+
       if (result.ok === 1 && result.item) {
         setHistoryData(result.item);
       } else {
@@ -74,10 +74,7 @@ export default function SurveyHistoryDetailPage() {
     <>
       <ResultShell title={`${historyData.memo.title} (${historyData.memo.date})`}>
         <div className="mb-6">
-          <button
-            onClick={handleGoBack}
-            className="flex items-center gap-2 text-yg-primary font-semibold hover:underline"
-          >
+          <button onClick={handleGoBack} className="flex items-center gap-2 text-yg-primary font-semibold hover:underline">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -90,15 +87,11 @@ export default function SurveyHistoryDetailPage() {
         <section className="mb-10">
           <div className="mb-4">
             <h2 className="text-3xl font-bold text-yg-black">추천 영양제</h2>
-            <p className="mt-1 text-sm font-normal text-yg-darkgray">
-              AI가 분석한 맞춤 영양제 {supplements.length}가지
-            </p>
+            <p className="mt-1 text-sm font-normal text-yg-darkgray">AI가 분석한 맞춤 영양제 {supplements.length}가지</p>
           </div>
 
           {supplements.length === 0 ? (
-            <div className="rounded-2xl border border-yg-lightgray bg-white p-6 text-sm text-yg-darkgray shadow-sm">
-              추천 조건을 충족하는 건강식품이 없어요.
-            </div>
+            <div className="rounded-2xl border border-yg-lightgray bg-white p-6 text-sm text-yg-darkgray shadow-sm">추천 조건을 충족하는 건강식품이 없어요.</div>
           ) : (
             <div className="space-y-6">
               {supplements.map((item) => (
@@ -108,7 +101,7 @@ export default function SurveyHistoryDetailPage() {
           )}
         </section>
 
-        <AiQuestion />
+        {/* <AiQuestion payloadSummary={summaryText} top3Products={top3ForAiQuestion} /> */}
       </ResultShell>
     </>
   );

@@ -44,6 +44,7 @@ export type SurveyResultPayload = {
   };
 
   selectedCategories: string[];
+  summary: string;
 
   categories: Record<
     CategoryKey,

@@ -105,9 +105,7 @@ export default function ProductsPage() {
         <CategoryTabs categories={categories} selectedId={selectedCategoryId} onSelect={setSelectedCategoryId} />
 
         <div className="flex items-center justify-end gap-2">
-          <label className="text-xs text-yg-darkgray" htmlFor="sort">
-            정렬
-          </label>
+          <label className="text-xs text-yg-darkgray" htmlFor="sort"></label>
           <select id="sort" value={sort} onChange={(e) => setSort(e.target.value as SortType)} className="h-9 rounded-lg border border-yg-lightgray bg-white px-3 text-sm" aria-label="상품 정렬 방식 선택">
             <option value="priceLow">가격 낮은순</option>
             <option value="priceHigh">가격 높은순</option>
