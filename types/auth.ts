@@ -33,15 +33,15 @@ export interface BaseButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
 // 사용자 정보
 export interface User {
   _id: number;
-  email: string;
-  name: string;
-  phone: string;
-  age: string;
-  gender: string;
-  height: string;
-  weight: string;
-  address: string;
-  addressDetail: string;
+  email?: string;
+  name?: string;
+  phone?: string;
+  age?: string;
+  gender?: string;
+  height?: string;
+  weight?: string;
+  address?: string;
+  addressDetail?: string;
 }
 
 // 토큰
@@ -96,3 +96,12 @@ export interface CertifyRes {
 
 // 본인인증 응답 타입
 export type CertifyActionState = CertifyRes | undefined;
+
+// 사용자 인증 상태 관리 스토어 타입
+export interface UserStoreState {
+  user: User | null;
+  hydrated: boolean;
+  setUser: (user: User | null) => void;
+  resetUser: () => void;
+  setHydrated: () => void;
+}

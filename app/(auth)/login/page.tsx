@@ -1,6 +1,18 @@
 import LoginForm from '@/components/auth/LoginForm';
+import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: '로그인 - 영구(영양제 구독)',
+  description: '영구(영양제 구독) 서비스에 로그인하여 나만의 맞춤 영양제 추천을 받아보세요.',
+  openGraph: {
+    title: '로그인 - 영구(영양제 구독)',
+    description: '영구(영양제 구독) 서비스에 로그인하여 나만의 맞춤 영양제 추천을 받아보세요.',
+    images: [{ url: '/og/global.png' }],
+    url: 'https://final-05-project.vercel.app/login',
+  },
+};
 
 export default function LoginPage() {
   return (

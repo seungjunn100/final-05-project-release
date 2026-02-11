@@ -6,7 +6,7 @@ interface SubscriptionProduct {
   name: string;
   price: number;
   imageUrl?: string;
-  quantity?: number; // 추가
+  quantity?: number;
 }
 
 interface SubscriptionItem {
@@ -26,69 +26,19 @@ interface ApiResponse<T = undefined> {
   message?: string;
 }
 
-// 백엔드 주문 API 응답 타입
-interface OrderProduct {
+// posts API 응답 타입
+interface Post {
   _id: number;
-  quantity: number;
-  seller_id: number;
-  name: string;
-  size?: string;
-  color?: string;
-  image?: {
-    url: string;
-    name: string;
-  };
-  price: number;
-  extra?: Record<string, unknown>;
-}
-
-interface Order {
-  _id: number;
-  products: OrderProduct[];
-  state: string;
+  type: string;
+  title: string;
+  content: string;
   user_id: number;
   createdAt: string;
   updatedAt: string;
-  cost: {
-    products: number;
-    shippingFees: number;
-    discount: {
-      products: number;
-      shippingFees: number;
-    };
-    total: number;
-  };
 }
 
-// 테스트용: globalThis를 사용한 영구 저장소 (서버 재시작 전까지 유지)
-declare global {
-  var mockSubscriptionsStore: SubscriptionItem[] | undefined;
-}
-
-// 전역 저장소 초기화
-if (!global.mockSubscriptionsStore) {
-  global.mockSubscriptionsStore = [];
-}
-
-/**
- * 백엔드 주문 데이터를 프론트엔드 구독 데이터로 변환
- */
-function transformOrderToSubscription(order: Order): SubscriptionItem[] {
-  const subscriptionId = order._id.toString();
-  const startDate = order.createdAt || new Date().toISOString().split('T')[0];
-  const nextPaymentDate = calculateNextPaymentDate(startDate);
-
-  return order.products.map((product: OrderProduct) => ({
-    _id: subscriptionId,
-    productId: product._id.toString(),
-    name: product.name,
-    price: product.price,
-    imageUrl: product.image?.url,
-    status: (order.state || 'active') as 'active' | 'paused',
-    startDate: startDate,
-    nextPaymentDate: nextPaymentDate,
-  }));
-}
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const CLIENT_ID = process.env.NEXT_PUBLIC_CLIENT_ID || '';
 
 /**
  * 다음 결제일 계산 (시작일로부터 1개월 후)
@@ -100,6 +50,25 @@ function calculateNextPaymentDate(startDate: string): string {
 }
 
 /**
+ * posts 데이터를 구독 데이터로 변환
+ */
+function transformPostToSubscription(post: Post): SubscriptionItem {
+  const contentData = JSON.parse(post.content);
+  const startDate = contentData.startDate || post.createdAt.split(' ')[0];
+  
+  return {
+    _id: post._id.toString(),
+    productId: contentData.productId,
+    name: contentData.name,
+    price: contentData.price,
+    imageUrl: contentData.imageUrl,
+    status: contentData.status || 'active',
+    startDate: startDate,
+    nextPaymentDate: calculateNextPaymentDate(startDate),
+  };
+}
+
+/**
  * 사용자의 구독 목록 조회
  */
 export async function getSubscriptions(): Promise<ApiResponse<SubscriptionItem[]>> {
@@ -107,15 +76,45 @@ export async function getSubscriptions(): Promise<ApiResponse<SubscriptionItem[]
     const cookieStore = await cookies();
     const token = cookieStore.get('accessToken')?.value;
 
-    console.log('🔍 getSubscriptions 호출');
-    console.log('🔍 token:', token ? '있음' : '없음');
-    console.log('📦 현재 저장된 구독 개수:', global.mockSubscriptionsStore?.length || 0);
-    console.log('📦 구독 목록:', global.mockSubscriptionsStore);
+    if (!token) {
+      return { ok: 0, message: '로그인이 필요합니다.' };
+    }
 
-    // 테스트용: 전역 저장소에서 반환
+    const response = await fetch(`${API_URL}/posts/users?type=subscription`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'client-id': CLIENT_ID,
+        Authorization: `Bearer ${token}`,
+      },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { ok: 0, message: errorData.message || '구독 목록 조회 실패' };
+    }
+
+    const data = await response.json();
+    
+    // posts를 구독 형식으로 변환
+    const subscriptions: SubscriptionItem[] = [];
+    if (data.item && Array.isArray(data.item)) {
+      data.item.forEach((post: Post) => {
+        try {
+          const subscription = transformPostToSubscription(post);
+          subscriptions.push(subscription);
+        } catch (error) {
+          console.error('게시글 변환 오류:', error);
+        }
+      });
+    }
+
+    console.log('✅ 구독 목록 조회 완료:', subscriptions.length, '개');
+
     return {
       ok: 1,
-      item: global.mockSubscriptionsStore || [],
+      item: subscriptions,
     };
   } catch (error) {
     console.error('구독 목록 조회 오류:', error);
@@ -134,28 +133,57 @@ export async function updateSubscriptionStatus(
     const cookieStore = await cookies();
     const token = cookieStore.get('accessToken')?.value;
 
-    console.log('🔍 updateSubscriptionStatus 호출');
-    console.log('🔍 subscriptionId:', subscriptionId);
-    console.log('🔍 new status:', status);
-
-    // 테스트용: 전역 저장소에서 업데이트
-    const subscriptions = global.mockSubscriptionsStore || [];
-    const index = subscriptions.findIndex(sub => sub._id === subscriptionId);
-    
-    if (index !== -1) {
-      subscriptions[index].status = status;
-      global.mockSubscriptionsStore = subscriptions;
-      
-      console.log('✅ 구독 상태 업데이트 성공');
-      
-      return {
-        ok: 1,
-        item: subscriptions[index],
-        message: '구독 상태가 업데이트되었습니다.',
-      };
+    if (!token) {
+      return { ok: 0, message: '로그인이 필요합니다.' };
     }
 
-    return { ok: 0, message: '구독을 찾을 수 없습니다.' };
+    // 기존 게시글 조회
+    const getResponse = await fetch(`${API_URL}/posts/${subscriptionId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'client-id': CLIENT_ID,
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!getResponse.ok) {
+      return { ok: 0, message: '구독을 찾을 수 없습니다.' };
+    }
+
+    const getData = await getResponse.json();
+    const contentData = JSON.parse(getData.item.content);
+    
+    // 상태 업데이트
+    contentData.status = status;
+
+    const response = await fetch(`${API_URL}/posts/${subscriptionId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'client-id': CLIENT_ID,
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ 
+        content: JSON.stringify(contentData),
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { ok: 0, message: errorData.message || '구독 상태 업데이트 실패' };
+    }
+
+    const data = await response.json();
+    const subscription = transformPostToSubscription(data.item);
+
+    console.log('✅ 구독 상태 업데이트 완료');
+
+    return {
+      ok: 1,
+      item: subscription,
+      message: '구독 상태가 업데이트되었습니다.',
+    };
   } catch (error) {
     console.error('구독 상태 업데이트 오류:', error);
     return { ok: 0, message: '서버 오류가 발생했습니다.' };
@@ -170,69 +198,56 @@ export async function addSubscription(products: SubscriptionProduct[]): Promise<
     const cookieStore = await cookies();
     const token = cookieStore.get('accessToken')?.value;
 
+    if (!token) {
+      return { ok: 0, message: '로그인이 필요합니다.' };
+    }
+
     console.log('🔍 addSubscription 호출');
     console.log('🔍 추가할 products:', products);
 
-    // 테스트용: 전역 저장소에 추가
     const today = new Date();
-    const nextMonth = new Date(today);
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    const startDate = today.toISOString().split('T')[0];
 
-    // 기존 구독 확인
-    if (!global.mockSubscriptionsStore) {
-      global.mockSubscriptionsStore = [];
-    }
+    const newSubscriptions: SubscriptionItem[] = [];
 
-    console.log('📦 현재 저장된 구독:', global.mockSubscriptionsStore);
-    console.log('📦 저장된 구독 개수:', global.mockSubscriptionsStore.length);
-
-    const existingProductIds = new Set(
-      global.mockSubscriptionsStore.map(sub => sub.productId)
-    );
-    
-    console.log('🔍 기존 productId 목록:', Array.from(existingProductIds));
-    console.log('🔍 새로 추가할 productId 목록:', products.map(p => p.productId));
-
-    // 중복되지 않는 상품만 필터링
-    const newProducts = products.filter(
-      product => !existingProductIds.has(product.productId)
-    );
-
-    console.log('✅ 실제로 추가될 상품:', newProducts);
-
-    if (newProducts.length === 0) {
-      console.log('⚠️ 모든 상품이 이미 구독 중입니다');
-      return {
-        ok: 1,
-        item: [],
-        message: '이미 구독 중인 상품입니다.',
+    // 각 상품을 개별 게시글로 생성
+    for (const product of products) {
+      const contentData = {
+        productId: product.productId,
+        name: product.name,
+        price: product.price,
+        imageUrl: product.imageUrl,
+        quantity: product.quantity || 1,
+        status: 'active',
+        startDate: startDate,
       };
+
+      const response = await fetch(`${API_URL}/posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'client-id': CLIENT_ID,
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          type: 'subscription',
+          title: `${product.name} 구독`,
+          content: JSON.stringify(contentData),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ 구독 추가 실패:', errorData.message);
+        continue;
+      }
+
+      const data = await response.json();
+      const subscription = transformPostToSubscription(data.item);
+      newSubscriptions.push(subscription);
     }
 
-    const newSubscriptions: SubscriptionItem[] = newProducts.map((product, index) => ({
-      _id: `sub-${Date.now()}-${index}`,
-      productId: product.productId,
-      name: product.name,
-      price: product.price,
-      imageUrl: product.imageUrl,
-      status: 'active' as const,
-      startDate: today.toISOString().split('T')[0],
-      nextPaymentDate: nextMonth.toISOString().split('T')[0],
-    }));
-
-    global.mockSubscriptionsStore.push(...newSubscriptions);
-
-    console.log('✅ 구독 추가 성공:', newSubscriptions);
-    console.log('📦 추가 후 전체 구독 목록:', global.mockSubscriptionsStore);
-
-    if (newProducts.length < products.length) {
-      const skippedCount = products.length - newProducts.length;
-      return {
-        ok: 1,
-        item: newSubscriptions,
-        message: `${newSubscriptions.length}개 구독 추가 완료 (${skippedCount}개는 이미 구독 중)`,
-      };
-    }
+    console.log('✅ 구독 추가 완료:', newSubscriptions.length, '개');
 
     return {
       ok: 1,
@@ -253,26 +268,30 @@ export async function deleteSubscription(subscriptionId: string): Promise<ApiRes
     const cookieStore = await cookies();
     const token = cookieStore.get('accessToken')?.value;
 
-    console.log('🔍 deleteSubscription 호출');
-    console.log('🔍 subscriptionId:', subscriptionId);
-
-    // 테스트용: 전역 저장소에서 삭제
-    const subscriptions = global.mockSubscriptionsStore || [];
-    const index = subscriptions.findIndex(sub => sub._id === subscriptionId);
-    
-    if (index !== -1) {
-      subscriptions.splice(index, 1);
-      global.mockSubscriptionsStore = subscriptions;
-      
-      console.log('✅ 구독 삭제 성공');
-      
-      return {
-        ok: 1,
-        message: '구독이 취소되었습니다.',
-      };
+    if (!token) {
+      return { ok: 0, message: '로그인이 필요합니다.' };
     }
 
-    return { ok: 0, message: '구독을 찾을 수 없습니다.' };
+    const response = await fetch(`${API_URL}/posts/${subscriptionId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'client-id': CLIENT_ID,
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return { ok: 0, message: errorData.message || '구독 삭제 실패' };
+    }
+
+    console.log('✅ 구독 삭제 완료');
+
+    return {
+      ok: 1,
+      message: '구독이 취소되었습니다.',
+    };
   } catch (error) {
     console.error('구독 삭제 오류:', error);
     return { ok: 0, message: '서버 오류가 발생했습니다.' };
@@ -285,13 +304,28 @@ export async function deleteSubscription(subscriptionId: string): Promise<ApiRes
  */
 export async function clearAllSubscriptions(): Promise<ApiResponse<undefined>> {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('accessToken')?.value;
+
+    if (!token) {
+      return { ok: 0, message: '로그인이 필요합니다.' };
+    }
+
+    // 모든 구독 게시글 조회
+    const subscriptions = await getSubscriptions();
+    
+    if (subscriptions.ok !== 1 || !subscriptions.item) {
+      return { ok: 0, message: '구독 목록을 가져올 수 없습니다.' };
+    }
+
     console.log('🗑️ 모든 구독 초기화 시작');
-    console.log('📦 초기화 전 구독 개수:', global.mockSubscriptionsStore?.length || 0);
-    console.log('📦 초기화 전 구독 목록:', global.mockSubscriptionsStore);
-    
-    global.mockSubscriptionsStore = [];
-    
-    console.log('📦 초기화 후 구독 개수:', global.mockSubscriptionsStore.length);
+    console.log('📦 초기화할 구독 개수:', subscriptions.item.length);
+
+    // 각 구독 삭제
+    for (const subscription of subscriptions.item) {
+      await deleteSubscription(subscription._id);
+    }
+
     console.log('✅ 초기화 완료');
 
     return {

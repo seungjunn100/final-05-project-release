@@ -21,6 +21,7 @@ import ConditionSummaryCard from '@/components/survey/result/ConditionSummaryCar
 import SupplementCard, { type Supplement } from '@/components/survey/result/SupplementCard';
 import AiQuestion from '@/components/survey/result/AiQuestion';
 import SubscribeButton from '@/components/survey/result/SubscribeButton';
+import SupplementSkeleton from '@/components/survey/result/SupplementSkeleton';
 
 const MAX_RECOMMEND_COUNT = 3;
 const RECOMMENDED_PRODUCTS_KEY = 'recommendedProducts';
@@ -239,16 +240,32 @@ export default function SurveyResultPage() {
     [finalSupplements]
   );
 
+  const summaryText = useMemo(() => {
+    if (aiError) return '답변을 생성하는 데 문제가 발생했어요. 잠시 후 다시 시도해주세요.';
+    return aiData?.summary ?? FALLBACK_SUMMARY;
+  }, [aiError, aiData]);
+
   // 설문 기록 저장 (finalSupplements가 로드되면 자동 저장)
   useEffect(() => {
     if (!finalSupplements.length || !payload || !user) return;
 
-    const currentSurveyId = JSON.stringify(payload);
+    // AI 로딩 중이면 대기
+    if (isAiLoading) {
+      console.log('⏳ AI 응답 대기 중... (로딩)');
+      return;
+    }
 
+    // AI 데이터가 없고 에러도 없으면 아직 완료 안 됨
+    if (!aiData && !aiError) {
+      console.log('⏳ AI 응답 대기 중... (데이터 없음)');
+      return;
+    }
+
+    const currentSurveyId = JSON.stringify(payload);
     const savedSurveyId = localStorage.getItem('lastSavedSurveyId');
 
     if (!hasSavedHistoryRef.current && savedSurveyId !== currentSurveyId) {
-      saveSurveyToServer(payload, finalSupplements)
+      saveSurveyToServer(payload, finalSupplements, summaryText)
         .then((result) => {
           if (result.ok === 1) {
             localStorage.setItem('lastSavedSurveyId', currentSurveyId);
@@ -257,9 +274,7 @@ export default function SurveyResultPage() {
         .catch(() => {});
       hasSavedHistoryRef.current = true;
     }
-  }, [finalSupplements, payload, user]);
-
-  const summaryText = aiError ? '답변을 생성하는 데 문제가 발생했어요. 잠시 후 다시 시도해주세요.' : (aiData?.summary ?? FALLBACK_SUMMARY);
+  }, [finalSupplements, payload, user, summaryText, aiData, aiError, isAiLoading]); 
 
   const handleSubscribe = () => {
     if (finalSupplements.length === 0) return;
@@ -298,36 +313,29 @@ export default function SurveyResultPage() {
             </div>
           )}
 
-          {!isLoading && !isError && (
-            <>
-              {aiError ? (
-                <div className="rounded-2xl border border-yg-lightgray bg-white p-6 shadow-sm">
-                  <p className="text-sm text-yg-darkgray">AI 추천을 생성하는 데 문제가 발생했어요. 잠시 후 다시 시도하거나, 설문을 다시 진행해 주세요.</p>
-                  <div className="mt-4 flex gap-2">
-                    <button
-                      type="button"
-                      onClick={handleRetry}
-                      disabled={isRetrying}
-                      className={`rounded-xl border border-yg-lightgray bg-white px-4 py-2 text-sm font-semibold text-yg-black transition-colors ${isRetrying ? 'opacity-50 cursor-not-allowed' : 'hover:bg-yg-lightgray active:bg-yg-gray'}`}
-                    >
-                      {isRetrying ? 'AI 다시 요청 중...' : '다시 시도하기'}
-                    </button>
+          {isAiLoading && <SupplementSkeleton />}
 
-                    <button type="button" onClick={() => router.push('/survey')} className="rounded-xl border border-yg-lightgray bg-white px-4 py-2 text-sm font-semibold text-yg-black transition-colors hover:bg-yg-lightgray active:bg-yg-gray focus:outline-none">
-                      설문 다시 하기
-                    </button>
-                  </div>
-                </div>
-              ) : finalSupplements.length === 0 ? (
-                <div className="rounded-2xl border border-yg-lightgray bg-white p-6 text-sm text-yg-darkgray shadow-sm">추천 조건을 충족하는 건강식품이 없어요.</div>
-              ) : (
-                <div className="space-y-6">
-                  {finalSupplements.map((item) => (
-                    <SupplementCard key={item.id} item={item} onClickDetail={handleClickDetail} />
-                  ))}
-                </div>
-              )}
-            </>
+          {!isAiLoading && !aiError && finalSupplements.length > 0 && (
+            <div className="space-y-6">
+              {finalSupplements.map((item) => (
+                <SupplementCard key={item.id} item={item} onClickDetail={handleClickDetail} />
+              ))}
+            </div>
+          )}
+
+          {aiError && (
+            <div className="rounded-2xl border border-yg-lightgray bg-white p-6 shadow-sm">
+              <p className="text-sm text-yg-darkgray">AI 추천을 생성하는 데 문제가 발생했어요. 잠시 후 다시 시도하거나, 설문을 다시 진행해 주세요.</p>
+              <div className="mt-4 flex gap-2">
+                <button type="button" onClick={handleRetry} disabled={isRetrying} className={`rounded-xl border border-yg-lightgray bg-white px-4 py-2 text-sm font-semibold text-yg-black transition-colors ${isRetrying ? 'opacity-50 cursor-not-allowed' : 'hover:bg-yg-lightgray active:bg-yg-gray'}`}>
+                  {isRetrying ? 'AI 다시 요청 중...' : '다시 시도하기'}
+                </button>
+
+                <button type="button" onClick={() => router.push('/survey')} className="rounded-xl border border-yg-lightgray bg-white px-4 py-2 text-sm font-semibold text-yg-black transition-colors hover:bg-yg-lightgray active:bg-yg-gray focus:outline-none">
+                  설문 다시 하기
+                </button>
+              </div>
+            </div>
           )}
         </section>
 

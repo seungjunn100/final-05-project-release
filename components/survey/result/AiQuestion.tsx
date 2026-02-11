@@ -12,6 +12,27 @@ type AnswerState = {
   loading: boolean;
   answer: string | null;
 };
+
+function parseLinesToList(answer: string | null) {
+  if (!answer) return null;
+
+  return answer
+    .split('\n')
+    .filter((line) => line.trim() !== '')
+    .map((line, i) => (
+      <li key={i} className="leading-relaxed">
+        {line.startsWith('•') ? (
+          <>
+            <span className="mr-1">•</span>
+            {line.slice(1).trim()}
+          </>
+        ) : (
+          line
+        )}
+      </li>
+    ));
+}
+
 //가이드 질문 받아오기
 export default function AiQuestion({ payloadSummary, top3Products }: Props) {
   const { questions } = useSurveyAiQuestions(payloadSummary, top3Products);
@@ -65,7 +86,7 @@ export default function AiQuestion({ payloadSummary, top3Products }: Props) {
       if (!res.body) throw new Error('No response stream');
 
       const reader = res.body.getReader();
-      const decoder = new TextDecoder();
+      const decoder = new TextDecoder('utf-8');
 
       let fullAnswer = '';
 
@@ -140,20 +161,7 @@ export default function AiQuestion({ payloadSummary, top3Products }: Props) {
         <div className="mt-6 rounded-xl border border-yg-lightgray bg-yg-lightgray p-4">
           <p className="mb-2 text-sm font-semibold">{questions.find((q) => q.id === activeQuestionId)?.text}</p>
 
-          {activeLoading && !activeAnswer ? (
-            <p className="text-sm text-yg-darkgray">AI가 답변을 생성 중이에요...</p>
-          ) : (
-            <ul className="space-y-2 text-sm text-yg-black">
-              {activeAnswer
-                ?.split('\n')
-                .slice(0, 6)
-                .map((line, i) => (
-                  <li key={i} className="leading-relaxed">
-                    {line}
-                  </li>
-                ))}
-            </ul>
-          )}
+          {activeLoading && !activeAnswer ? <p className="text-sm text-yg-darkgray">AI가 답변을 생성 중이에요...</p> : <ul className="space-y-2 text-sm text-yg-black">{parseLinesToList(activeAnswer)}</ul>}
         </div>
       )}
     </section>

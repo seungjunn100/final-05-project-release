@@ -1,78 +1,25 @@
-'use client';
+import type { Metadata } from 'next';
+import SurveyStartPage from './SurveyStartpage';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+export const metadata: Metadata = {
+  metadataBase: new URL('https://final-05-project.vercel.app'),
+  title: 'AI 설문 시작하기',
+  description: '간단한 설문조사를 통해 AI 맞춤 영양제 추천을 받아보세요.',
+  openGraph: {
+    title: 'AI 설문 시작하기',
+    description: '지금 설문을 시작하고 AI의 맞춤 추천을 받아보세요.',
+    url: 'https://final-05-project.vercel.app/survey',
+    images: [
+      {
+        url: '/og/global.png',
+        width: 1200,
+        height: 630,
+        alt: 'AI 설문 썸네일',
+      },
+    ],
+  },
+};
 
-import SurveyTitle from '@/components/survey/SurveyTitle';
-import ProgressBar from '@/components/survey/ProgressBar';
-import { getSurveyAttemptCount, increaseSurveyAttemptCount } from '@/lib/surveyAttempt';
-import useUserStore from '@/store/userStore';
-
-export default function SurveyStartPage() {
-  const router = useRouter();
-
-  const { user, hydrated } = useUserStore();
-  const isLoggedIn = Boolean(user);
-
-  // 🔹 로그인 필요 상태
-  const [needLogin, setNeedLogin] = useState(false);
-
-  const handleStart = () => {
-    if (!hydrated) return;
-
-    const attemptCount = getSurveyAttemptCount();
-
-    // ❗ 비로그인 + 2회차부터 로그인 필요
-    if (!isLoggedIn && attemptCount >= 1) {
-      setNeedLogin(true);
-      return;
-    }
-
-    // ✅ 허용된 경우에만 시도 횟수 증가
-    increaseSurveyAttemptCount();
-    router.push('/survey/question');
-  };
-
-  const handleGoLogin = () => {
-    router.push('/login?next=/survey/question');
-  };
-
-  return (
-    <SurveyTitle title="설문 페이지">
-      <div className="flex flex-col items-center justify-center gap-8 py-12">
-        {/* ProgressBar (0%) */}
-        <div className="w-full max-w-xl">
-          <ProgressBar value={0} />
-        </div>
-
-        {/* 타이틀 */}
-        <h1 className="text-2xl font-bold text-[var(--color-yg-black)]">AI 맞춤 영양제 추천</h1>
-
-        {/* 알약 아이콘 */}
-        <img src="/icons/survey/pill.png" alt="알약 아이콘" width={48} height={48} />
-
-        {/* 설명 문구 */}
-        <p className="max-w-sm text-center text-sm leading-6 text-[var(--color-yg-darkgray)]">
-          간단한 설문조사를 통해
-          <br />
-          AI 맞춤 추천을 받고 정기구독을 시작해보세요
-        </p>
-
-        {/* 시작하기 버튼 */}
-        <button type="button" disabled={!hydrated} onClick={handleStart} className="mt-6 w-full max-w-md rounded-full bg-[var(--color-yg-primary)] py-4 text-base font-semibold text-white transition hover:opacity-90 disabled:opacity-50">
-          시작하기
-        </button>
-
-        {/* 🔔 로그인 안내 상태창 (버튼 제공형) */}
-        {needLogin && (
-          <div className="mt-4 w-full max-w-md rounded-xl border border-yg-primary bg-yg-lightgray px-4 py-4 text-center text-sm">
-            <p className="mb-3 font-medium text-yg-primary">AI 추천받기 2회부터는 로그인이 필요해요</p>
-            <button type="button" onClick={handleGoLogin} className="rounded-full bg-[var(--color-yg-primary)] px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90">
-              로그인하러 가기
-            </button>
-          </div>
-        )}
-      </div>
-    </SurveyTitle>
-  );
+export default function Page() {
+  return <SurveyStartPage />;
 }

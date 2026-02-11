@@ -21,8 +21,8 @@ export default function SupplementCard({ item, onClickDetail }: Props) {
   return (
     <article className="overflow-hidden rounded-2xl border border-yg-lightgray bg-white shadow-sm">
       {/* 이미지 영역 */}
-      <div className="relative h-52 w-full overflow-hidden bg-yg-white">
-        <div className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-yg-lightgray bg-white px-3 py-1 text-xs font-semibold text-yg-black">
+      <div className="relative h-52 w-full z-0 overflow-hidden bg-yg-white">
+        <div className="absolute left-4 top-4 z-20 inline-flex items-center gap-2 rounded-full border border-yg-lightgray bg-white px-3 py-1 text-xs font-semibold text-yg-black">
           <span className="h-2 w-2 rounded-full bg-yg-primary" />
           {item.badge ?? 'AI 추천'}
         </div>

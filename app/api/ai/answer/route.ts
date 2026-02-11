@@ -92,6 +92,7 @@ ${getQuestionText(questionKey)}
         if (done) break;
 
         const text = decoder.decode(value, { stream: true });
+
         const lines = text
           .split('\n')
           .map((line) => line.trim())
@@ -108,6 +109,7 @@ ${getQuestionText(questionKey)}
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content;
             if (content) {
+              //인코딩 처리 안정적으로
               controller.enqueue(encoder.encode(content));
             }
           } catch {
@@ -120,7 +122,7 @@ ${getQuestionText(questionKey)}
 
   return new Response(stream, {
     headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
+      'Content-Type': 'text/plain; charset=utf-8', //문자 깨짐 방지
     },
   });
 }

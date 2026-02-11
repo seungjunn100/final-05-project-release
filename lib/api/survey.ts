@@ -44,6 +44,7 @@ interface SurveyContent {
     description: string;
     imageUrl?: string;
   }>;
+  summary?: string;
 }
 
 export interface SurveyHistoryItem {
@@ -62,6 +63,7 @@ export interface SurveyHistoryItem {
       description: string;
       imageUrl?: string;
     }>;
+    summary?: string;
   };
   createdAt: string;
   updatedAt: string;
@@ -76,7 +78,8 @@ export async function saveSurveyToServer(
     price: number;
     description: string;
     imageUrl?: string;
-  }>
+  }>,
+  summary?: string
 ): Promise<{ ok: 0 | 1; message?: string; item?: SurveyHistoryItem }> {
   try {
     const cookieStore = await cookies();
@@ -100,6 +103,7 @@ export async function saveSurveyToServer(
         date: new Date().toISOString().split('T')[0].replace(/-/g, '.'),
         payload,
         supplements,
+        summary,
       }),
     };
 
@@ -167,6 +171,7 @@ export async function saveSurveyToServer(
           date: new Date().toISOString().split('T')[0].replace(/-/g, '.'),
           payload,
           supplements,
+          summary,
         },
         createdAt: postResult.item.createdAt,
         updatedAt: postResult.item.updatedAt,
@@ -227,6 +232,7 @@ export async function getSurveysFromServer(): Promise<{
           date: content.date,
           payload: content.payload,
           supplements: content.supplements,
+          summary: content.summary,
         },
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
@@ -287,6 +293,7 @@ export async function getSurveyByIdFromServer(
         date: content.date,
         payload: content.payload,
         supplements: content.supplements,
+        summary: content.summary,
       },
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,

@@ -2,6 +2,11 @@ import './globals.css';
 import { pretendard } from './fonts';
 import Header from '@/components/common/Header';
 import Footer from '@/components/common/Footer';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  metadataBase: new URL('https://final-05-project.vercel.app/'),
+};
 
 export default function RootLayout({
   children,

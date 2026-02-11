@@ -1,15 +1,6 @@
-import { User } from '@/types/auth';
+import { User, UserStoreState } from '@/types/auth';
 import { create, StateCreator } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-
-// 사용자 인증 상태 관리 스토어 타입
-interface UserStoreState {
-  user: User | null;
-  hydrated: boolean;
-  setUser: (user: User | null) => void;
-  resetUser: () => void;
-  setHydrated: () => void;
-}
 
 // 사용자 정보 스토어의 초기값과 액션(함수)을 정의
 const UserStore: StateCreator<UserStoreState> = (set) => ({

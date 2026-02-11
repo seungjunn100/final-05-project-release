@@ -64,6 +64,57 @@ export async function login(state: LoginActionState, formdata: FormData): Promis
       const cookieStore = await cookies();
 
       cookieStore.set('accessToken', accessToken, {
+        httpOnly: true, // XSS 방어: JavaScript로 토큰 못 훔쳐감
+        secure: process.env.NODE_ENV === 'production', // HTTPS에서만 쿠키 전송 (개발: false, 프로덕션: true)
+        sameSite: 'lax', // 기본값, CSRF 방어 + 사용자 편의성 균형 (의심스러운 요청(POST, DELETE 등)만 차단하고, 일반적인 링크 클릭은 허용)
+        path: '/', // 모든 페이지에서 인증 토큰 사용
+        maxAge: 60 * 30, // 30분
+      });
+
+      cookieStore.set('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 14, // 14일
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    return { ok: 0, message: '일시적인 네트워크 문제가 발생했습니다.' };
+  }
+
+  return data;
+}
+
+// 카카오 로그인
+export async function loginKakao(code: string): Promise<LoginActionState> {
+  let res: Response;
+  let data: LoginActionState;
+  const body = {
+    code,
+    redirect_uri: process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI,
+  };
+
+  try {
+    res = await fetch(`${API_URL}/users/login/kakao`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Client-Id': CLIENT_ID,
+      },
+      body: JSON.stringify(body),
+    });
+
+    data = await res.json();
+
+    if (data?.ok) {
+      const accessToken = data.item.token.accessToken;
+      const refreshToken = data.item.token.refreshToken;
+
+      const cookieStore = await cookies();
+
+      cookieStore.set('accessToken', accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',

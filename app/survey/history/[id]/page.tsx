@@ -8,8 +8,22 @@ import ResultShell from '@/components/survey/result/ResultShell';
 import ConditionSummaryCard from '@/components/survey/result/ConditionSummaryCard';
 import SupplementCard, { type Supplement } from '@/components/survey/result/SupplementCard';
 import AiQuestion from '@/components/survey/result/AiQuestion';
+import SubscribeButton from '@/components/survey/result/SubscribeButton';
 
-const TEMP_SUMMARY = '설문 결과를 기반으로 카테고리별 추천 영양제를 준비했어요.';
+const FALLBACK_SUMMARY = '설문 결과를 기반으로 카테고리별 추천 영양제를 준비했어요.';
+const RECOMMENDED_PRODUCTS_KEY = 'recommendedProducts';
+
+function saveRecommendedProducts(supplements: Supplement[]) {
+  const recommendedProducts = supplements.map((item) => ({
+    id: item.id,
+    name: item.name,
+    price: item.price,
+    description: item.description,
+    imageUrl: item.imageUrl,
+  }));
+
+  sessionStorage.setItem(RECOMMENDED_PRODUCTS_KEY, JSON.stringify(recommendedProducts));
+}
 
 export default function SurveyHistoryDetailPage() {
   const router = useRouter();
@@ -35,6 +49,7 @@ export default function SurveyHistoryDetailPage() {
       } else {
         router.replace('/mypage');
       }
+
       setIsLoading(false);
     };
 
@@ -49,6 +64,32 @@ export default function SurveyHistoryDetailPage() {
     router.push('/mypage');
   };
 
+  const handleSubscribe = () => {
+    if (!historyData || supplements.length === 0) return;
+    saveRecommendedProducts(supplements);
+    router.push('/subscription');
+  };
+
+  const supplements: Supplement[] = !historyData
+    ? []
+    : historyData.memo.supplements.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        description: item.description,
+        tags: [],
+        badge: '추천',
+        imageUrl: item.imageUrl,
+      }));
+
+  const top3Products = supplements.slice(0, 3).map((s) => ({
+    name: s.name,
+    description: s.description,
+  }));
+
+  // summary 가져오기
+  const summaryText = historyData?.memo.summary || FALLBACK_SUMMARY;
+
   if (isLoading || !historyData) {
     return (
       <div className="w-full h-screen bg-white flex items-center justify-center">
@@ -59,16 +100,6 @@ export default function SurveyHistoryDetailPage() {
       </div>
     );
   }
-
-  const supplements: Supplement[] = historyData.memo.supplements.map((item) => ({
-    id: item.id,
-    name: item.name,
-    price: item.price,
-    description: item.description,
-    tags: [],
-    badge: '추천',
-    imageUrl: item.imageUrl,
-  }));
 
   return (
     <>
@@ -82,7 +113,7 @@ export default function SurveyHistoryDetailPage() {
           </button>
         </div>
 
-        <ConditionSummaryCard summary={TEMP_SUMMARY} />
+        <ConditionSummaryCard summary={summaryText} />
 
         <section className="mb-10">
           <div className="mb-4">
@@ -101,8 +132,13 @@ export default function SurveyHistoryDetailPage() {
           )}
         </section>
 
-        {/* <AiQuestion payloadSummary={summaryText} top3Products={top3ForAiQuestion} /> */}
+        <AiQuestion payloadSummary={summaryText} top3Products={top3Products} />
       </ResultShell>
+
+      {/* 구독하기 버튼 추가 */}
+      {supplements.length > 0 && (
+        <SubscribeButton onClick={handleSubscribe} />
+      )}
     </>
   );
 }
