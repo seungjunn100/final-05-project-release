@@ -23,8 +23,8 @@ interface OrdererInfo {
 interface ShippingInfo {
   name: string;
   phone: string;
-  address1: string;
-  address2: string;
+  address: string;
+  addressDetail: string;
 }
 
 interface PaymentInfo {
@@ -109,8 +109,8 @@ export default function SubscriptionComplete() {
         paymentMethod: paymentInfo.paymentMethod,
         shippingName: paymentInfo.shippingInfo.name,
         shippingPhone: paymentInfo.shippingInfo.phone,
-        shippingAddress1: paymentInfo.shippingInfo.address1,
-        shippingAddress2: paymentInfo.shippingInfo.address2,
+        shippingAddress: paymentInfo.shippingInfo.address,
+        shippingAddressDetail: paymentInfo.shippingInfo.addressDetail,
         couponDiscount: paymentInfo.couponDiscount || 0,
         pointUsed: paymentInfo.pointUsed || 0,
         shippingFee: paymentInfo.shippingFee || 0,
@@ -150,7 +150,7 @@ export default function SubscriptionComplete() {
           {/* 완료 아이콘 */}
           <div className="flex justify-center mb-8">
             <div className="w-20 h-20 bg-yg-primary rounded-[50px] flex items-center justify-center">
-              <svg className="w-12 h-12 text-yg-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
               </svg>
             </div>
@@ -203,8 +203,8 @@ export default function SubscriptionComplete() {
             <div className="space-y-2">
               <p className="font-semibold">{paymentInfo.shippingInfo.name}</p>
               <p className="text-yg-darkgray">{paymentInfo.shippingInfo.phone}</p>
-              <p className="text-yg-darkgray">{paymentInfo.shippingInfo.address1}</p>
-              <p className="text-yg-darkgray">{paymentInfo.shippingInfo.address2}</p>
+              <p className="text-yg-darkgray">{paymentInfo.shippingInfo.address}</p>
+              <p className="text-yg-darkgray">{paymentInfo.shippingInfo.addressDetail}</p>
             </div>
           </div>
 
@@ -213,13 +213,13 @@ export default function SubscriptionComplete() {
             <Link
               href="/"
               onClick={handleGoHome}
-              className="flex-1 bg-yg-white rounded-[50px] text-yg-primary font-semibold py-3 shadow-lg hover:bg-yg-lightgray transition text-center"
+              className="flex-1 bg-yg-secondary rounded-[50px] text-white font-semibold py-3 shadow-lg hover:bg-yg-secondary/80 cursor-pointer transition text-center"
             >
               홈으로
             </Link>
             <Link
               href="/mypage?tab=subscription&refresh=true"
-              className="flex-1 bg-yg-primary rounded-[50px] text-yg-white font-semibold py-3 shadow-lg hover:bg-opacity-90 transition text-center"
+              className="flex-1 bg-yg-primary rounded-[50px] text-white font-semibold py-3 shadow-lg hover:bg-yg-primary/80 cursor-pointer transition text-center"
             >
               구독 관리하기
             </Link>

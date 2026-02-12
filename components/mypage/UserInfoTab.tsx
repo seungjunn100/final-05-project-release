@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import TabCard from './TabCard';
+import Button from '@/components/common/Button';
 import type { UserInfo } from '@/types/mypage';
 
 interface UserInfoTabProps {
@@ -35,9 +36,13 @@ export default function UserInfoTab({ userInfo, onSave }: UserInfoTabProps) {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-lg font-semibold">사용자 정보</h1>
         {!isEditing && (
-          <button onClick={() => setIsEditing(true)} className="bg-yg-primary px-6 py-2 rounded-[50px] font-semibold text-yg-white shadow-lg">
+          <Button 
+            onClick={() => setIsEditing(true)}
+            variant="primary"
+            size="sm"
+          >
             수정
-          </button>
+          </Button>
         )}
       </div>
 
@@ -64,12 +69,20 @@ export default function UserInfoTab({ userInfo, onSave }: UserInfoTabProps) {
 
           {/* 버튼 */}
           <div className="flex gap-3 mt-4">
-            <button onClick={handleCancel} className="flex-1 bg-yg-gray rounded-[50px] text-yg-white font-semibold py-3 shadow-lg">
+            <Button 
+              onClick={handleCancel}
+              variant="gray"
+              className="flex-1"
+            >
               취소
-            </button>
-            <button onClick={handleSave} className="flex-1 bg-yg-primary rounded-[50px] text-yg-white font-semibold py-3 shadow-lg">
+            </Button>
+            <Button 
+              onClick={handleSave}
+              variant="primary"
+              className="flex-1"
+            >
               저장
-            </button>
+            </Button>
           </div>
         </div>
       ) : (

@@ -41,6 +41,7 @@ export default function Dropdown({ options, value, onChange, placeholder = 'ì„ í
   };
 
   const displayValue = options.find(opt => opt.value === value)?.label || placeholder;
+  const isSelected = value !== '';
 
   return (
     <div ref={dropdownRef} className={`relative ${className}`}>
@@ -50,7 +51,11 @@ export default function Dropdown({ options, value, onChange, placeholder = 'ì„ í
           e.stopPropagation();
           setIsOpen(!isOpen);
         }}
-        className="w-full bg-yg-white text-yg-primary shadow-lg px-4 py-2 font-semibold rounded-[50px] border border-yg-primary focus:outline-none"
+        className={`w-full px-4 py-2 font-semibold rounded-[50px] cursor-pointer hover:bg-yg-primary/15 focus:outline-none transition-colors ${
+          isSelected
+            ? 'bg-yg-primary text-white hover:bg-yg-primary/80'
+            : 'bg-yg-white text-yg-primary border border-yg-lightgray hover:bg-yg-primary/15'
+        }`}
       >
         {displayValue}
       </button>
@@ -61,7 +66,7 @@ export default function Dropdown({ options, value, onChange, placeholder = 'ì„ í
               key={option.value}
               type="button"
               onClick={() => handleSelect(option.value)}
-              className="block w-full text-left px-4 py-2 hover:bg-yg-lightgray"
+              className="block w-full text-left px-4 py-2 cursor-pointer hover:bg-yg-lightgray"
             >
               {option.label}
             </button>

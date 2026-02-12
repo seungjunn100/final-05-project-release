@@ -1,4 +1,5 @@
 import SectionCard from './SectionCard';
+import Button from '@/components/common/Button';
 
 interface CouponPointSectionProps {
   coupon: string;
@@ -34,12 +35,14 @@ export default function CouponPointSection({
               placeholder="쿠폰 코드 입력"
             />
           </div>
-          <button
-            className="bg-yg-primary px-2 w-27 h-12 rounded-[50px] font-semibold text-yg-white shadow-lg"
+          <Button
             onClick={onApplyCoupon}
+            disabled={!coupon.trim()}
+            variant="primary"
+            className="w-27 shrink-0"
           >
             쿠폰 적용
-          </button>
+          </Button>
         </div>
 
         {/* 포인트 */}
@@ -56,12 +59,13 @@ export default function CouponPointSection({
               placeholder="포인트 입력"
             />
           </div>
-          <button
-            className="bg-yg-primary px-2 w-27 h-12 rounded-[50px] font-semibold text-yg-white shadow-lg"
+          <Button
             onClick={onUseAllPoints}
+            variant="primary"
+            className="w-27 shrink-0"
           >
             전액 사용
-          </button>
+          </Button>
         </div>
       </div>
     </SectionCard>

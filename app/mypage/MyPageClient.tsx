@@ -183,8 +183,8 @@ export default function MyPageClient() {
         confirmButtonClass="bg-yg-secondary"
       >
         <div className="bg-yg-secondary rounded-[50px] shadow-lg px-10 py-6 my-6">
-          <h3 className="font-semibold mb-3 text-yg-white">⚠️ 주의사항</h3>
-          <ul className="space-y-2 text-sm text-yg-white">
+          <h3 className="font-semibold mb-3 text-white">⚠️ 주의사항</h3>
+          <ul className="space-y-2 text-sm text-white">
             <li>• 모든 개인정보가 영구적으로 삭제됩니다.</li>
             <li>• 구독 중인 서비스가 모두 해지됩니다.</li>
             <li>• 작성한 설문 내역이 삭제됩니다.</li>

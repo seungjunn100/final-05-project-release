@@ -2,12 +2,15 @@
 import '@/app/globals.css';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { SyncLoader } from 'react-spinners';
 import * as PortOne from '@portone/browser-sdk/v2';
 import ItemList from '@/components/subscription/ItemList';
 import SectionCard from '@/components/subscription/SectionCard';
 import Dropdown from '@/components/common/Dropdown';
+import Button from '@/components/common/Button';
 import EditableInfoSection from '@/components/subscription/EditableInfoSection';
 import CouponPointSection from '@/components/subscription/CouponPointSection';
+import Checkbox from '@/components/subscription/Checkbox';
 import useUserStore from '@/store/userStore';
 import { PAYMENT_OPTIONS, FREE_SHIPPING_THRESHOLD, SHIPPING_FEE } from '@/lib/subscription/constants';
 import type { RecommendedProduct, SubscriptionProduct, OrdererInfo, ShippingInfo, PaymentMethod } from '@/types/subscription';
@@ -27,7 +30,7 @@ export default function Subscription() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('');
   const [ordererInfo, setOrdererInfo] = useState<OrdererInfo>({ 
     name: user?.name || '사용자 이름',
-    phone: user?.phone || '010-0000-0000',
+    phone: user?.phone || '01000000000',
     email: user?.email || '사용자 이메일' 
   });
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({ 
@@ -148,11 +151,6 @@ export default function Subscription() {
   };
 
   const applyCoupon = () => {
-    if (coupon === '') {
-      alert('쿠폰 코드를 입력해주세요.');
-      return;
-    }
-
     if (coupon === 'WELCOME10') {
       const productTotal = calculateProductTotal();
       const discount = Math.floor(productTotal * 0.5);
@@ -206,6 +204,16 @@ export default function Subscription() {
 
     if (!paymentMethod) {
       alert('결제 방법을 선택해주세요.');
+      return;
+    }
+
+    if (!shippingInfo.address || !shippingInfo.address.trim()) {
+      alert('배송지 주소를 입력해주세요.');
+      return;
+    }
+
+    if (!shippingInfo.addressDetail || !shippingInfo.addressDetail.trim()) {
+      alert('배송지 상세주소를 입력해주세요.');
       return;
     }
 
@@ -275,8 +283,8 @@ export default function Subscription() {
     return (
       <div className="w-full h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-yg-primary mb-4"></div>
-          <p className="text-lg text-yg-darkgray">추천 상품을 불러오는 중...</p>
+          <SyncLoader color="#4ac5b2" size={12} margin={4} />
+          <p className="text-lg text-yg-darkgray mt-4">추천 상품을 불러오는 중...</p>
         </div>
       </div>
     );
@@ -306,12 +314,20 @@ export default function Subscription() {
 
             {/* 버튼 */}
             <div className="flex flex-col gap-3">
-              <button onClick={() => router.push('/survey')} className="w-full bg-yg-primary rounded-[50px] text-yg-white font-semibold py-3 shadow-lg hover:bg-opacity-90 transition">
+              <Button 
+                onClick={() => router.push('/survey')} 
+                variant="primary"
+                className="w-full"
+              >
                 AI 추천받기
-              </button>
-              <button onClick={() => router.push('/products')} className="w-full bg-yg-white rounded-[50px] text-yg-primary font-semibold py-3 shadow-lg border border-yg-primary hover:bg-opacity-90 transition">
+              </Button>
+              <Button 
+                onClick={() => router.push('/products')} 
+                variant="secondary"
+                className="w-full"
+              >
                 상품 목록 둘러보기
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -369,13 +385,20 @@ export default function Subscription() {
             </SectionCard>
 
             <SectionCard title="구매 동의">
-              <div className="flex items-baseline gap-2">
-                <input type="checkbox" id="agreement" className="agreement" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
-                <label htmlFor="agreement" className="mb-0">[필수] 개인정보 수집 및 이용에 동의합니다.</label>
-              </div>
+              <Checkbox
+                checked={agreed}
+                onChange={setAgreed}
+                label="[필수] 개인정보 수집 및 이용에 동의합니다."
+              />
             </SectionCard>
 
-            <button className="bg-yg-primary rounded-[50px] text-yg-white font-semibold py-3 shadow-lg hover:bg-opacity-90 transition" onClick={handlePayment}>결제하기</button>
+            <Button 
+              onClick={handlePayment}
+              variant="primary"
+              className="w-full"
+            >
+              결제하기
+            </Button>
           </section>
         </div>
       </main>

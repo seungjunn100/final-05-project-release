@@ -10,8 +10,8 @@ import { useActionState, useEffect, useState } from 'react';
 import { BeatLoader } from 'react-spinners';
 
 export default function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('wx010622@naver.com');
+  const [password, setPassword] = useState('1111');
 
   const [userState, formAction, isPending] = useActionState(login, null);
   const setUser = useUserStore((state) => state.setUser);

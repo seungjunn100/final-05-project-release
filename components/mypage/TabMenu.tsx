@@ -24,9 +24,9 @@ export default function TabMenu({ activeTab, onTabChange, tabs = defaultTabs }: 
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
-          className={`flex-1 py-3 rounded-[50px] font-semibold shadow-lg transition ${
+          className={`flex-1 py-3 rounded-[50px] font-semibold shadow-lg cursor-pointer transition ${
             activeTab === tab.id
-              ? 'bg-yg-primary text-yg-white'
+              ? 'bg-yg-primary text-white'
               : 'bg-yg-white'
           }`}
         >

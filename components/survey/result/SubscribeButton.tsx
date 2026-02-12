@@ -12,7 +12,7 @@ export default function SubscribeButton({ onClick }: Props) {
           type="button"
           onClick={onClick}
           className="
-          w-full rounded-xl bg-yg-primary
+          w-full rounded-[50px] bg-yg-primary
           px-4 py-3.5 text-sm font-semibold text-white shadow-sm
           transition-colors duration-200
           hover:bg-yg-primary/90 active:bg-yg-primary/80

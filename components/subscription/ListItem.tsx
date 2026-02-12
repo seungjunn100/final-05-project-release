@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Checkbox from '@/components/subscription/Checkbox';
 
 interface Product {
   id: number;
@@ -20,11 +21,12 @@ export default function ListItem({ product, onToggleCheck, onIncrease, onDecreas
   return (
     <tr>
       <td className="text-center">
-        <input
-          type="checkbox"
-          checked={product.checked}
-          onChange={() => onToggleCheck(product.id)}
-        />
+        <div className="flex justify-center">
+          <Checkbox
+            checked={product.checked}
+            onChange={() => onToggleCheck(product.id)}
+          />
+        </div>
       </td>
       <td className="px-3">
         <div className="flex items-center">

@@ -1,5 +1,4 @@
 'use client';
-import { Pill } from 'lucide-react';
 import Image from 'next/image';
 
 export type SupplementTag = { label: string };
@@ -73,7 +72,7 @@ export default function SupplementCard({ item, onClickDetail }: Props) {
           type="button"
           onClick={() => onClickDetail?.(item.id)}
           className="
-            mt-5 w-full rounded-2xl
+            mt-5 w-full rounded-[50px]
             bg-yg-secondary
             py-3
             text-sm font-semibold text-white

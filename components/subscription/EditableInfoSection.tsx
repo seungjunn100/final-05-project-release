@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import SectionCard from '@/components/subscription/SectionCard';
+import Button from '@/components/common/Button';
 
 interface BaseInfo {
   name: string;
@@ -141,18 +142,19 @@ export default function EditableInfoSection({ title, type, data, onSave, readOnl
 
           {/* 버튼 */}
           <div className="flex gap-3 justify-end">
-            <button
-              className="bg-yg-gray px-4 w-18 h-12 rounded-[50px] font-semibold text-yg-white shadow-lg"
+            <Button
               onClick={handleCancel}
+              variant="gray"
             >
               취소
-            </button>
-            <button
-              className="bg-yg-primary px-4 w-18 h-12 rounded-[50px] font-semibold text-yg-white shadow-lg"
+            </Button>
+            
+            <Button
               onClick={handleSave}
+              variant="primary"
             >
               저장
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
@@ -171,12 +173,12 @@ export default function EditableInfoSection({ title, type, data, onSave, readOnl
             )}
           </div>
           {!readOnly && (
-            <button
-              className="bg-yg-primary px-2 w-18 h-12 rounded-[50px] font-semibold text-yg-white shadow-lg"
+            <Button
+              variant="primary"
               onClick={() => setIsEditing(true)}
             >
               수정
-            </button>
+            </Button>
           )}
         </div>
       )}

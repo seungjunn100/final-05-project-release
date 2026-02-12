@@ -65,8 +65,8 @@ function createPaymentEmailTemplate(data: {
   paymentMethod: string;
   shippingName: string;
   shippingPhone: string;
-  shippingAddress1: string;
-  shippingAddress2: string;
+  shippingAddress: string;
+  shippingAddressDetail: string;
   couponDiscount: number;
   pointUsed: number;
   shippingFee: number;
@@ -137,8 +137,8 @@ function createPaymentEmailTemplate(data: {
             <div style="line-height: 1.6;">
               <p style="margin: 0 0 8px 0; font-weight: 600; font-size: 16px;">${data.shippingName}</p>
               <p style="margin: 0 0 8px 0; color: #666666; font-size: 16px;">${data.shippingPhone}</p>
-              <p style="margin: 0 0 8px 0; color: #666666; font-size: 16px;">${data.shippingAddress1}</p>
-              <p style="margin: 0; color: #666666; font-size: 16px;">${data.shippingAddress2}</p>
+              <p style="margin: 0 0 8px 0; color: #666666; font-size: 16px;">${data.shippingAddress}</p>
+              <p style="margin: 0; color: #666666; font-size: 16px;">${data.shippingAddressDetail}</p>
             </div>
           </div>
 
@@ -181,8 +181,8 @@ export async function sendPaymentConfirmationEmail(data: {
   paymentMethod: string;
   shippingName: string;
   shippingPhone: string;
-  shippingAddress1: string;
-  shippingAddress2: string;
+  shippingAddress: string;
+  shippingAddressDetail: string;
   couponDiscount: number;
   pointUsed: number;
   shippingFee: number;

@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import Button from '@/components/common/Button';
 
 interface ModalProps {
   isOpen: boolean;
@@ -19,7 +20,6 @@ export default function Modal({
   onConfirm,
   confirmText = '확인',
   cancelText = '취소',
-  confirmButtonClass = 'bg-yg-primary',
 }: ModalProps) {
   if (!isOpen) return null;
 
@@ -29,18 +29,20 @@ export default function Modal({
         <h2 className="text-2xl font-bold text-center mb-4">{title}</h2>
         {children}
         <div className="flex gap-3">
-          <button
+          <Button
             onClick={onClose}
-            className="flex-1 bg-yg-gray rounded-[50px] text-yg-white font-semibold py-3 shadow-lg"
+            variant="gray"
+            className="flex-1"
           >
             {cancelText}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onConfirm}
-            className={`flex-1 ${confirmButtonClass} rounded-[50px] text-yg-white font-semibold py-3 shadow-lg`}
+            variant="primary"
+            className="flex-1"
           >
             {confirmText}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
