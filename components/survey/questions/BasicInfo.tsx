@@ -14,27 +14,44 @@ const ageOptions = [
 ];
 
 export default function BasicInfo({ gender, ageGroup, onChangeGender, onChangeAgeGroup }: Props) {
-  const chip = (active: boolean) => ['h-11 rounded-full border px-4 text-sm font-medium transition', active ? 'border-transparent bg-[var(--color-yg-primary)] text-white' : 'border-[var(--color-yg-lightgray)] bg-white text-[var(--color-yg-black)] hover:bg-[var(--color-yg-white)]'].join(' ');
-
   return (
     <div className="mt-6 flex flex-col gap-6">
       <div>
-        <p className="mb-2 text-sm font-semibold text-[var(--color-yg-black)]">성별</p>
+        <p className="mb-2 text-sm font-semibold text-yg-black">성별</p>
         <div className="grid grid-cols-2 gap-3">
-          <button type="button" className={chip(gender === 'M')} onClick={() => onChangeGender?.('M')}>
+          <button
+            type="button"
+            onClick={() => onChangeGender?.('M')}
+            className={`w-full py-3 rounded-full shadow-md transition
+            ${gender === 'M' ? 'bg-yg-primary text-white' : 'bg-yg-white text-yg-primary hover:bg-yg-lightgray'}
+          `}
+          >
             남성
           </button>
-          <button type="button" className={chip(gender === 'F')} onClick={() => onChangeGender?.('F')}>
+          <button
+            type="button"
+            onClick={() => onChangeGender?.('F')}
+            className={`w-full py-3 rounded-full shadow-md transition
+            ${gender === 'F' ? 'bg-yg-primary text-white' : 'bg-yg-white text-yg-primary hover:bg-yg-lightgray'}
+          `}
+          >
             여성
           </button>
         </div>
       </div>
 
       <div>
-        <p className="mb-2 text-sm font-semibold text-[var(--color-yg-black)]">연령대</p>
+        <p className="mb-2 text-sm font-semibold text-yg-black">연령대</p>
         <div className="grid grid-cols-2 gap-3">
           {ageOptions.map((a) => (
-            <button key={a.id} type="button" className={chip(ageGroup === a.id)} onClick={() => onChangeAgeGroup?.(a.id)}>
+            <button
+              key={a.id}
+              type="button"
+              onClick={() => onChangeAgeGroup?.(a.id)}
+              className={`w-full py-3 rounded-full shadow-md transition
+              ${ageGroup === a.id ? 'bg-yg-primary text-white' : 'bg-yg-white text-yg-primary hover:bg-yg-lightgray'}
+            `}
+            >
               {a.label}
             </button>
           ))}

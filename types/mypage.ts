@@ -1,10 +1,7 @@
 export interface UserInfo {
   name: string;
   email: string;
-  age: string;
-  gender: string;
-  height: string;
-  weight: string;
+  phone: string;
 }
 
 export interface SubscriptionProduct {

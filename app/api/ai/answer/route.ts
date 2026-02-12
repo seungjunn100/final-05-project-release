@@ -72,57 +72,22 @@ ${getQuestionText(questionKey)}
         { role: 'user', content: userPrompt },
       ],
       temperature: 0.5,
-      stream: true, //실시간 응답
+      stream: false,
     }),
   });
-
-  if (!openaiRes.ok || !openaiRes.body) {
+  if (!openaiRes.ok) {
+    const errorText = await openaiRes.text();
+    console.error('OpenAI 응답 오류:', errorText);
     return new Response('OpenAI 응답 오류', { status: 500 });
   }
 
-  //스트리밍 응답 처리
-  const stream = new ReadableStream({
-    async start(controller) {
-      const reader = openaiRes.body!.getReader();
-      const decoder = new TextDecoder('utf-8');
-      const encoder = new TextEncoder();
+  //cotent 추출
+  const data = await openaiRes.json();
+  const content = data.choices?.[0]?.message?.content ?? '응답 없음';
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const text = decoder.decode(value, { stream: true });
-
-        const lines = text
-          .split('\n')
-          .map((line) => line.trim())
-          .filter((line) => line.startsWith('data:'));
-
-        for (const line of lines) {
-          const jsonStr = line.replace(/^data:\s*/, '');
-          if (jsonStr === '[DONE]') {
-            controller.close();
-            return;
-          }
-
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content;
-            if (content) {
-              //인코딩 처리 안정적으로
-              controller.enqueue(encoder.encode(content));
-            }
-          } catch {
-            // JSON 파싱 실패는 무시
-          }
-        }
-      }
-    },
-  });
-
-  return new Response(stream, {
+  return new Response(content, {
     headers: {
-      'Content-Type': 'text/plain; charset=utf-8', //문자 깨짐 방지
+      'Content-Type': 'text/plain; charset=utf-8',
     },
   });
 }

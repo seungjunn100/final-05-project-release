@@ -7,10 +7,7 @@ const CLIENT_ID = process.env.NEXT_PUBLIC_CLIENT_ID || '';
 
 interface UpdateUserInfoData {
   name: string;
-  age: string;
-  gender: string;
-  height: string;
-  weight: string;
+  phone: string;
 }
 
 interface UpdateUserInfoResponse {
@@ -20,10 +17,7 @@ interface UpdateUserInfoResponse {
     _id: number;
     name: string;
     email: string;
-    age: string;
-    gender: string;
-    height: string;
-    weight: string;
+    phone: string;
   };
 }
 

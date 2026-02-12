@@ -61,15 +61,15 @@ export default function SurveyStartPage() {
         </p>
 
         {/* 시작하기 버튼 */}
-        <button type="button" disabled={!hydrated} onClick={handleStart} className="mt-6 w-full max-w-md rounded-full bg-[var(--color-yg-primary)] py-4 text-base font-semibold text-white transition hover:opacity-90 disabled:opacity-50">
+        <button type="button" disabled={!hydrated} onClick={handleStart} className="mt-6 w-full max-w-md rounded-full bg-yg-primary py-4 text-base font-semibold text-white transition hover:opacity-90 disabled:opacity-50">
           시작하기
         </button>
 
         {/* 로그인 유도 메시지 및 버튼 */}
         {needLogin && (
-          <div className="mt-4 w-full max-w-md rounded-xl border border-yg-primary bg-yg-lightgray px-4 py-4 text-center text-sm">
+          <div className="mt-4 w-full max-w-md rounded-xl   bg-yg-white px-4 py-4 text-center text-sm">
             <p className="mb-3 font-medium text-yg-primary">AI 추천받기 2회부터는 로그인이 필요해요</p>
-            <button type="button" onClick={handleGoLogin} className="rounded-full bg-[var(--color-yg-primary)] px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90">
+            <button type="button" onClick={handleGoLogin} className="rounded-full bg-yg-primary px-5 py-2 text-sm font-semibold text-white transition hover:opacity-90">
               로그인하러 가기
             </button>
           </div>

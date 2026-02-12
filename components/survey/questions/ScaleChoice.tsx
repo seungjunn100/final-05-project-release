@@ -24,7 +24,7 @@ export default function ScaleChoice({ value, onChange, choices }: Props) {
               key={item.value}
               type="button"
               onClick={() => onChange?.(item.value)}
-              className={['h-11 w-full rounded-full border px-5 text-left text-sm font-medium transition', active ? 'border-transparent bg-[var(--color-yg-primary)] text-white' : 'border-[var(--color-yg-lightgray)] bg-white text-[var(--color-yg-black)] hover:bg-[var(--color-yg-white)]'].join(' ')}
+              className={['h-11 w-full rounded-full  px-5 text-left text-sm font-medium shadow-md transition', active ? 'bg-yg-primary text-white border-transparent' : 'bg-yg-white text-yg-primary  hover:bg-yg-lightgray'].join(' ')}
             >
               {item.label}
             </button>

@@ -26,15 +26,12 @@ export default function MyPageClient() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [activeTab, setActiveTab] = useState<TabType>('info');
 
-  // 조건부 return으로 인한 오류 방지
+  // 사용자 정보 - 이름, 이메일, 전화번호만 표시
   const userInfo = useMemo<UserInfo>(
     () => ({
-      name: user?.name || '기본 이름',
-      email: user?.email || '기본 이메일',
-      age: user?.age || '',
-      gender: user?.gender === 'M' ? '남성' : user?.gender === 'F' ? '여성' : '기타',
-      height: user?.height || '',
-      weight: user?.weight || '',
+      name: user?.name || '',
+      email: user?.email || '',
+      phone: user?.phone || '',
     }),
     [user]
   );
@@ -69,10 +66,7 @@ export default function MyPageClient() {
     try {
       const result = await updateUserInfo(user._id, {
         name: info.name,
-        age: info.age,
-        gender: info.gender === '남성' ? 'M' : info.gender === '여성' ? 'F' : info.gender,
-        height: info.height,
-        weight: info.weight,
+        phone: info.phone,
       });
 
       if (result.ok === 0 && result.message?.includes('인증')) {
@@ -90,10 +84,7 @@ export default function MyPageClient() {
         setUser({
           ...user,
           name: result.item.name,
-          age: result.item.age,
-          gender: result.item.gender,
-          height: result.item.height,
-          weight: result.item.weight,
+          phone: result.item.phone,
         });
         alert('회원정보가 수정되었습니다.');
       }

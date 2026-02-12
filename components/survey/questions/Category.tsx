@@ -30,28 +30,16 @@ export default function Category({ categories, value, onChange, maxSelect = 2 }:
       <div className="grid grid-cols-2 gap-3">
         {categories.map((c) => {
           const active = value.includes(c.id);
-          const disabled = isMaxSelected && !active;
 
           return (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => toggle(c.id)}
-              disabled={disabled}
-              aria-disabled={disabled}
-              className={[
-                'h-11 rounded-full border text-sm font-medium transition',
-                active ? 'border-transparent bg-[var(--color-yg-primary)] text-white' : 'border-[var(--color-yg-lightgray)] bg-white text-[var(--color-yg-black)] hover:bg-[var(--color-yg-white)]',
-                disabled ? 'cursor-not-allowed opacity-40' : '',
-              ].join(' ')}
-            >
+            <button key={c.id} type="button" onClick={() => toggle(c.id)} disabled={false} className={['h-11 w-full rounded-full text-sm font-medium shadow-md transition', active ? 'bg-yg-primary text-white border-transparent' : 'bg-yg-white text-yg-primary  hover:bg-yg-lightgray'].join(' ')}>
               {c.label}
             </button>
           );
         })}
       </div>
 
-      <p className="mt-3 text-xs text-[var(--color-yg-darkgray)]">
+      <p className="mt-3 text-xs text-yg-darkgray">
         최대 {maxSelect}개까지 선택할 수 있어요. ({value.length}/{maxSelect})
       </p>
     </div>

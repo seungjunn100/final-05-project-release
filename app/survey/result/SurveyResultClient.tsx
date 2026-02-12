@@ -274,7 +274,7 @@ export default function SurveyResultPage() {
         .catch(() => {});
       hasSavedHistoryRef.current = true;
     }
-  }, [finalSupplements, payload, user, summaryText, aiData, aiError, isAiLoading]); 
+  }, [finalSupplements, payload, user, summaryText, aiData, aiError, isAiLoading]);
 
   const handleSubscribe = () => {
     if (finalSupplements.length === 0) return;
@@ -302,7 +302,7 @@ export default function SurveyResultPage() {
             <p className="mt-1 text-sm font-normal text-yg-darkgray">AI가 분석한 맞춤 영양제 {Math.min(recommendCount, MAX_RECOMMEND_COUNT)}가지</p>
           </div>
 
-          {isLoading && <div className="rounded-2xl border border-yg-lightgray bg-white p-6 text-sm text-yg-darkgray shadow-sm">추천 영양제를 불러오는 중이에요...</div>}
+          {isLoading && <div className="rounded-2xl  bg-yg-white p-6 text-sm text-yg-darkgray shadow-sm">추천 영양제를 불러오는 중이에요...</div>}
 
           {!isLoading && isError && (
             <div className="rounded-2xl border border-yg-lightgray bg-white p-6 shadow-sm">
@@ -331,7 +331,7 @@ export default function SurveyResultPage() {
                   {isRetrying ? 'AI 다시 요청 중...' : '다시 시도하기'}
                 </button>
 
-                <button type="button" onClick={() => router.push('/survey')} className="rounded-xl border border-yg-lightgray bg-white px-4 py-2 text-sm font-semibold text-yg-black transition-colors hover:bg-yg-lightgray active:bg-yg-gray focus:outline-none">
+                <button type="button" onClick={() => router.push('/survey')} className="rounded-2xl border border-yg-lightgray bg-white px-4 py-2 text-sm font-semibold text-yg-black transition-colors hover:bg-yg-lightgray active:bg-yg-gray focus:outline-none">
                   설문 다시 하기
                 </button>
               </div>

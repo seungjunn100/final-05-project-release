@@ -141,14 +141,14 @@ export default function AiQuestion({ payloadSummary, top3Products }: Props) {
             <li
               key={q.id}
               onClick={() => !isDisabled && handleClickQuestion(q)}
-              className={`flex items-center justify-between rounded-xl border p-4 transition
-                ${isActive ? 'border-yg-primary bg-yg-lightgray' : 'border-yg-lightgray hover:bg-yg-lightgray'}
-                ${isDisabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}
-              `}
+              className={`flex items-center justify-between rounded-2xl  p-4 transition
+              ${isActive ? ' bg-yg-white/80' : 'border-yg-lightgray bg-yg-white hover:bg-yg-lightgray'}
+              ${isDisabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}
+            `}
             >
               <div className="flex items-center gap-3">
                 <span>{q.icon}</span>
-                <span className="text-sm font-medium">{q.text}</span>
+                <span className="text-sm font-medium text-yg-black">{q.text}</span>
               </div>
               <span className="text-yg-gray">▾</span>
             </li>
@@ -158,10 +158,10 @@ export default function AiQuestion({ payloadSummary, top3Products }: Props) {
 
       {/* 답변 영역 */}
       {activeQuestionId && (
-        <div className="mt-6 rounded-xl border border-yg-lightgray bg-yg-lightgray p-4">
-          <p className="mb-2 text-sm font-semibold">{questions.find((q) => q.id === activeQuestionId)?.text}</p>
+        <div className="mt-6 rounded-2xl  bg-yg-white p-4">
+          <p className="mb-2 text-sm font-semibold text-yg-black">{questions.find((q) => q.id === activeQuestionId)?.text}</p>
 
-          {activeLoading && !activeAnswer ? <p className="text-sm text-yg-darkgray">AI가 답변을 생성 중이에요...</p> : <ul className="space-y-2 text-sm text-yg-black">{parseLinesToList(activeAnswer)}</ul>}
+          {activeLoading && !activeAnswer ? <p className="text-sm text-yg-darkgray">AI가 답변을 생성 중이에요...</p> : <ul className="space-y-2 text-sm text-yg-black leading-relaxed">{parseLinesToList(activeAnswer)}</ul>}
         </div>
       )}
     </section>

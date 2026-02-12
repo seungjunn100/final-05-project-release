@@ -4,10 +4,10 @@ import { loginKakao } from '@/actions/auth';
 import useUserStore from '@/store/userStore';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { BeatLoader } from 'react-spinners';
 
-export default function KakaoCallback() {
+export default function KakaoLoginCallback() {
   const setUser = useUserStore((state) => state.setUser);
   const searchParams = useSearchParams();
   const code = searchParams.get('code');

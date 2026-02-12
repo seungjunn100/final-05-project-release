@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 export default function SurveyLayout({ children }: { children: ReactNode }) {
   return (
-    <main className="min-h-dvh bg-[var(--color-yg-white)]">
+    <main className="min-h-dvh bg-white">
       {/* 전체 페이지 폭 */}
       <div className="mx-auto w-full max-w-6xl px-4 lg:px-8">
         {/* 내부 설문 컨텐츠 폭 */}
@@ -13,9 +13,9 @@ export default function SurveyLayout({ children }: { children: ReactNode }) {
             flex
             min-h-[calc(100dvh-56px)]
             w-full
-            max-w-[640px]
+            max-w-160
             flex-col
-            lg:max-w-[720px]
+            lg:max-w-180
           "
         >
           <div className="flex flex-1 flex-col justify-center py-10 lg:py-12">

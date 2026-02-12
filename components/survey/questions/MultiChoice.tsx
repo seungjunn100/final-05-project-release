@@ -28,11 +28,7 @@ export default function MultiChoice({ options, value, onChange, maxSelect }: Pro
             key={opt.id}
             type="button"
             onClick={() => toggle(opt.id)}
-            className={[
-              'h-11 w-full rounded-full border px-4 text-left text-sm font-medium',
-              'flex items-center justify-between',
-              active ? 'border-transparent bg-[var(--color-yg-primary)] text-white' : 'border-[var(--color-yg-lightgray)] bg-white text-[var(--color-yg-black)] hover:bg-[var(--color-yg-white)]',
-            ].join(' ')}
+            className={['h-11 w-full px-4 rounded-full text-left text-sm font-medium', 'flex items-center justify-between shadow-md transition', active ? 'bg-yg-primary text-white border-transparent' : 'bg-yg-white text-yg-primary hover:bg-yg-lightgray'].join(' ')}
           >
             <span>{opt.label}</span>
             <span className={active ? 'opacity-100' : 'opacity-30'}>✓</span>
@@ -40,7 +36,7 @@ export default function MultiChoice({ options, value, onChange, maxSelect }: Pro
         );
       })}
 
-      {maxSelect && <p className="mt-1 text-xs text-[var(--color-yg-darkgray)]">최대 {maxSelect}개까지 선택할 수 있어요.</p>}
+      {maxSelect && <p className="mt-1 text-xs text-yg-darkgray">최대 {maxSelect}개까지 선택할 수 있어요.</p>}
     </div>
   );
 }
