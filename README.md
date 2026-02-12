@@ -232,13 +232,15 @@
 <tr>
 <td>
 
-<img width="1899" height="903" alt="스크린샷 2026-02-12 114606" src="https://github.com/user-attachments/assets/7de4f323-a52e-4c54-872a-9a10b835bd80" />
+<img width="1898" height="902" alt="스크린샷 2026-02-12 182153" src="https://github.com/user-attachments/assets/b8a786f6-3562-45c0-b3e0-8ad3e3f5567b" />
+
 
 
 </td>
 <td>
+  
+<img width="1890" height="904" alt="스크린샷 2026-02-12 182205" src="https://github.com/user-attachments/assets/dcbd6ecb-8b0c-496e-86e2-a055db6b6225" />
 
-<img width="1893" height="902" alt="스크린샷 2026-02-12 114629" src="https://github.com/user-attachments/assets/b5183653-1f94-4ad0-b018-edf6774937b3" />
 
 </td>
 </tr>
@@ -312,7 +314,8 @@
 </td>
 <td>
 
-<img width="1888" height="909" alt="스크린샷 2026-02-12 114836" src="https://github.com/user-attachments/assets/27a2ec20-98f7-4333-8502-6ae5e47ec2e9" />
+<img width="1898" height="904" alt="스크린샷 2026-02-12 182327" src="https://github.com/user-attachments/assets/2e287038-bb85-4949-8c41-39b8d5fe7d90" />
+
 
 
 </td>
@@ -467,7 +470,7 @@
 |:--:|:--|:--|:--|
 | **유진** | 결제/구독 페이지에서 AI가 추천한 상품이 아닌 다른 상품이 표시되는 문제 발생  | 설문 결과 페이지에서 AI가 추천한 상품 정보를 sessionStorage에 저장하는 과정에서 해당 상품의 고유한 ID가 아닌 프론트엔드에서 부여한 index를  저장한 것으로 파악됨. 구독 페이지에서 이 index에 기반하여 백엔드 API 요청을 보내 그에 해당하는 id를 보유한 상품 정보를 받아옴. SurveyResultClient.tsx에서 추천 받은 Supplement를 다른 페이지에서도 불러오도록 매핑하는 과정에서 서버에 저장된 상품 객체 | 사용할 타입을 개선하여 프론트엔드에서 해당 상품이 가지는 index 가 아닌 서버에 저장된  item.id 를 사용 및 sessionstorage에 저장하여 공용으로 활용할 수 있게 개선함 |
 | **승준** | 새로고침 시 로그인 전 헤더가 깜빡이며 보이다가 로그인 후 헤더로 변경됨  | Zustand persist가 storage에서 상태를 복원하기 전에 첫 렌더링이 발생하여 초기값(null)으로 UI가 먼저 그려짐 | onRehydrateStorage로 복원 완료를 감지하는 hydrated 상태를 추가하여 복원 후에만 UI를 렌더링하도록 처리 |
-| **은재** | 설문 결과 페이지에서 데이터를 가져오기 위해 useEffect  내부에서 setState를 사용해 상품 데이터를 불러오는 과정에서 계속해서 경고 발생 | useEffect가 2번 실행될 수 있어 경고 노출, 결과 페이지에서 여러 과정이 겹쳐 setStaterk 연속 호출되어 연쇠 랜더링 경고 발생  |  데이터 패칭 방식을 바꾸어 SWR로 변경|
+| **은재** | 설문 결과 페이지에서 데이터를 가져오기 위해 useEffect  내부에서 setState를 사용해 상품 데이터를 불러오는 과정에서 계속해서 경고 발생 | useEffect가 2번 실행될 수 있어 경고 노출, 결과 페이지에서 여러 과정이 겹쳐 setState 연속 호출되어 연쇠 랜더링 경고 발생  |  데이터 패칭 방식을 바꾸어 SWR로 변경|
 | **수정** | 일부 상품 데이터가 안 나옴 | URL에 query parameter(seller_id) 필요 | URL 확인 후 query 포함 요청 |
 
 

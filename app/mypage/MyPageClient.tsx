@@ -1,6 +1,6 @@
 'use client';
 import '@/app/globals.css';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { logout } from '@/actions/auth';
 import { updateUserInfo } from '@/actions/mypage';
@@ -25,6 +25,7 @@ export default function MyPageClient() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [activeTab, setActiveTab] = useState<TabType>('info');
+  const isLoggingOut = useRef(false);
 
   // 사용자 정보 - 이름, 이메일, 전화번호만 표시
   const userInfo = useMemo<UserInfo>(
@@ -38,6 +39,9 @@ export default function MyPageClient() {
 
   // 로그인 체크
   useEffect(() => {
+    // 로그아웃 중이면 체크하지 않음
+    if (isLoggingOut.current) return;
+    
     if (hydrated && !user) {
       alert('로그인이 필요한 서비스입니다.');
       router.replace('/login');
@@ -96,6 +100,8 @@ export default function MyPageClient() {
 
   // 로그아웃
   const handleLogout = async () => {
+    isLoggingOut.current = true;
+
     try {
       await logout();
       resetUser();
@@ -104,6 +110,7 @@ export default function MyPageClient() {
       router.replace('/');
     } catch (error) {
       console.error('로그아웃 오류:', error);
+      isLoggingOut.current = false;
       alert('로그아웃 중 오류가 발생했습니다.');
     }
   };
@@ -122,6 +129,8 @@ export default function MyPageClient() {
       return;
     }
 
+    isLoggingOut.current = true;
+
     try {
       await logout();
       resetUser();
@@ -130,6 +139,7 @@ export default function MyPageClient() {
       router.replace('/');
     } catch (error) {
       console.error('회원탈퇴 오류:', error);
+      isLoggingOut.current = false;
       alert('회원탈퇴 중 오류가 발생했습니다.');
     }
   };
