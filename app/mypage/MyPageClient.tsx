@@ -41,7 +41,7 @@ export default function MyPageClient() {
   useEffect(() => {
     // 로그아웃 중이면 체크하지 않음
     if (isLoggingOut.current) return;
-    
+
     if (hydrated && !user) {
       alert('로그인이 필요한 서비스입니다.');
       router.replace('/login');
@@ -106,7 +106,6 @@ export default function MyPageClient() {
       await logout();
       resetUser();
       setShowLogoutModal(false);
-      alert(`감사합니다, ${user?.name}님!\n로그아웃이 완료되었습니다!`);
       router.replace('/');
     } catch (error) {
       console.error('로그아웃 오류:', error);

@@ -2,6 +2,7 @@
 
 import { ErrorRes, LoginActionState, UserActionState } from '@/types/auth';
 import { cookies } from 'next/headers';
+import { revalidatePath } from 'next/cache';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const CLIENT_ID = process.env.NEXT_PUBLIC_CLIENT_ID || '';
@@ -78,6 +79,8 @@ export async function login(state: LoginActionState, formdata: FormData): Promis
         path: '/',
         maxAge: 60 * 60 * 24 * 14, // 14일
       });
+
+      revalidatePath('/', 'layout');
     }
   } catch (err) {
     console.error(err);
@@ -91,6 +94,7 @@ export async function login(state: LoginActionState, formdata: FormData): Promis
 export async function loginKakao(code: string): Promise<LoginActionState> {
   let res: Response;
   let data: LoginActionState;
+
   const body = {
     code,
     redirect_uri: process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI,
@@ -129,6 +133,8 @@ export async function loginKakao(code: string): Promise<LoginActionState> {
         path: '/',
         maxAge: 60 * 60 * 24 * 14, // 14일
       });
+
+      revalidatePath('/', 'layout');
     }
   } catch (err) {
     console.error(err);
@@ -151,4 +157,6 @@ export async function logout() {
     path: '/',
     maxAge: 0,
   });
+
+  revalidatePath('/', 'layout');
 }

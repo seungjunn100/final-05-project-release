@@ -15,17 +15,21 @@ export default function KakaoLoginCallback() {
 
   useEffect(() => {
     async function login() {
-      if (code) {
-        const response = await loginKakao(code);
+      if (!code) {
+        router.replace('/login?error=kakao');
+        return;
+      }
 
-        if (response?.ok) {
-          setUser({
-            _id: response.item._id,
-            name: response.item.name,
-          });
-          alert(`안녕하세요, ${response.item.name}님!\n로그인이 완료되었습니다!`);
-          router.replace('/');
-        }
+      const response = await loginKakao(code);
+
+      if (response?.ok) {
+        setUser({
+          _id: response.item._id,
+          name: response.item.name,
+        });
+        router.replace('/');
+      } else {
+        router.replace('/login?error=kakao');
       }
     }
     login();

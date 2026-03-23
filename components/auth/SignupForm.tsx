@@ -33,11 +33,13 @@ export default function SignupForm() {
   const [pwdError, setPwdError] = useState('');
   const [pwdTouched, setPwdTouched] = useState<boolean | null>(null);
   const [pwdIsValid, setPwdIsValid] = useState<boolean | null>(null);
+  const [showPwd, setShowPwd] = useState(false);
 
   const [pwdCheck, setPwdCheck] = useState('');
   const [pwdCheckError, setPwdCheckError] = useState('');
   const [pwdCheckTouched, setPwdCheckTouched] = useState<boolean | null>(null);
   const [pwdCheckIsValid, setPwdCheckIsValid] = useState<boolean | null>(null);
+  const [showPwdCheck, setShowPwdCheck] = useState(false);
 
   const [phoneNumber, setPhoneNumber] = useState('');
   const [certifyMsg, setCertifyMsg] = useState('');
@@ -48,7 +50,6 @@ export default function SignupForm() {
   // 회원가입 완료 시 로그인 페이지로 이동
   useEffect(() => {
     if (userState?.ok) {
-      alert(`회원가입이 완료되었습니다!`);
       router.replace('/login');
     }
   }, [userState, router]);
@@ -199,8 +200,8 @@ export default function SignupForm() {
   const handleCertify = async () => {
     try {
       const res: CertifyActionState = await PortOne.requestIdentityVerification({
-        storeId: 'store-d1ae51ff-3845-45e1-8c36-533945dd9929',
-        channelKey: 'channel-key-10ef6a4b-a90d-4bec-88cd-8591a7903ff4',
+        storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID!,
+        channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!,
         identityVerificationId: `identity-verification-${crypto.randomUUID()}`,
       });
 
@@ -235,6 +236,7 @@ export default function SignupForm() {
       setCertifyMsg('본인인증 완료되었습니다.');
     } catch (err) {
       console.error('본인인증 오류:', err);
+      setCertifyMsg('본인인증 중 오류가 발생했습니다. 다시 시도해 주세요.');
     }
   };
 
@@ -247,19 +249,77 @@ export default function SignupForm() {
       <div className="flex flex-col flex-wrap items-baseline gap-y-4 mb-6 md:flex-row md:gap-x-4">
         <AuthInput label="이메일" name="email" type="email" placeholder="이메일을 입력하세요." className="w-full mb-0 md:w-auto md:grow" value={email} onChange={handleEmailChange} onBlur={handleEmailBlur} message={emailError} isValid={emailIsValid} />
         <div className="w-full md:w-34">
-          <label className="absolute -left-2499.75 inline-block mb-2 pl-5 font-medium text-yg-primary text-[14px] md:text-[18px] md:mb-3 md:relative">중복 확인</label>
+          <label aria-hidden="true" className="invisible inline-block mb-2 pl-5 font-medium text-yg-primary text-[14px] md:text-[18px] md:mb-3 md:pl-6.5">중복 확인</label>
           <BaseButton size="md" variant={emailIsValid && emailChecked !== true ? 'primary' : 'disabled'} disabled={!emailIsValid || emailChecked === true} className="w-full" onClick={handleEmailCheck}>
             중복 확인
           </BaseButton>
         </div>
         {emailCheckedMsg && <p className={`w-full mt-2 pl-5 text-[12px] ${emailChecked ? 'text-yg-primary' : 'text-yg-warning'} md:pl-6.5 md:text-[14px]`}>{emailCheckedMsg}</p>}
       </div>
-      <AuthInput label="비밀번호" name="password" type="password" placeholder="비밀번호를 입력하세요." value={pwd} onChange={handlePwdChange} onBlur={handlePwdBlur} message={pwdError} isValid={pwdIsValid} />
-      <AuthInput label="비밀번호 확인" name="passwordCheck" type="password" placeholder="비밀번호가 일치하는지 확인하세요." value={pwdCheck} onChange={handlePwdCheckChange} onBlur={handlePwdCheckBlur} message={pwdCheckError} isValid={pwdCheckIsValid} />
+      <AuthInput
+        label="비밀번호"
+        name="password"
+        type={showPwd ? 'text' : 'password'}
+        placeholder="비밀번호를 입력하세요."
+        value={pwd}
+        onChange={handlePwdChange}
+        onBlur={handlePwdBlur}
+        message={pwdError}
+        isValid={pwdIsValid}
+        suffix={
+          <button type="button" onClick={() => setShowPwd((prev) => !prev)} aria-label={showPwd ? '비밀번호 숨기기' : '비밀번호 표시'} className="absolute right-4 top-1/2 -translate-y-1/2 text-yg-gray hover:text-yg-primary md:right-6">
+            {showPwd ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 4.411m0 0L21 21"
+                />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            )}
+          </button>
+        }
+      />
+      <AuthInput
+        label="비밀번호 확인"
+        name="passwordCheck"
+        type={showPwdCheck ? 'text' : 'password'}
+        placeholder="비밀번호가 일치하는지 확인하세요."
+        value={pwdCheck}
+        onChange={handlePwdCheckChange}
+        onBlur={handlePwdCheckBlur}
+        message={pwdCheckError}
+        isValid={pwdCheckIsValid}
+        suffix={
+          <button type="button" onClick={() => setShowPwdCheck((prev) => !prev)} aria-label={showPwdCheck ? '비밀번호 확인 숨기기' : '비밀번호 확인 표시'} className="absolute right-4 top-1/2 -translate-y-1/2 text-yg-gray hover:text-yg-primary md:right-6">
+            {showPwdCheck ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 4.411m0 0L21 21"
+                />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            )}
+          </button>
+        }
+      />
       <AuthInput label="휴대폰 번호" name="phone" type="tel" placeholder="본인인증 후 자동 입력됩니다." className="mb-0" value={phoneNumber} isValid={isCertified} readOnly />
 
       <div className="mt-12 md:mt-15">
-        <BaseButton size="xl" variant={isCertified ? 'disabled' : 'primary'} onClick={handleCertify} disabled={isCertified === null && isCertified === false}>
+        <BaseButton size="xl" variant={isCertified ? 'disabled' : 'primary'} onClick={handleCertify} disabled={isCertified === true}>
           {isCertified ? '본인인증 완료' : '본인인증'}
         </BaseButton>
         {certifyMsg && <p className={`mt-2 pl-5 text-[12px] md:mt-3 md:pl-6.5 md:text-[14px] ${isCertified ? 'text-yg-primary' : 'text-yg-warning'}`}>{certifyMsg}</p>}

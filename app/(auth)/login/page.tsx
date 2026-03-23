@@ -2,6 +2,7 @@ import LoginForm from '@/components/auth/LoginForm';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: '로그인',
@@ -25,17 +26,19 @@ export default function LoginPage() {
       </header>
 
       <div className="max-w-lg mx-auto mt-14 px-4 md:mt-20">
-        <LoginForm />
+        <Suspense>
+          <LoginForm />
+        </Suspense>
       </div>
 
       <div className="flex justify-center items-center max-w-lg mx-auto mt-14 px-4 md:mt-20">
         <Link href="/signup" className="font-medium text-[14px] text-yg-primary md:text-base">
           회원가입
         </Link>
-        <span className="inline-block mx-4 text-[14px] text-yg-primary md:mx-6 md:text-[18px]">|</span>
-        <Link href="/signup" className="font-medium text-[14px] text-yg-primary md:text-base">
+        <span className="inline-block mx-4 text-[14px] text-yg-gray md:mx-6 md:text-[18px]">|</span>
+        <span className="font-medium text-[14px] text-yg-gray cursor-not-allowed md:text-base" title="서비스 준비 중입니다.">
           비밀번호 찾기
-        </Link>
+        </span>
       </div>
     </main>
   );

@@ -1,10 +1,9 @@
-'use client';
-
-import { usePathname } from 'next/navigation';
+import { cookies } from 'next/headers';
 import HeaderInner from './HeaderInner';
 
-export default function Header() {
-  const pathname = usePathname();
+export default async function Header() {
+  const cookieStore = await cookies();
+  const isLoggedIn = !!cookieStore.get('accessToken');
 
-  return <HeaderInner key={pathname} />;
+  return <HeaderInner isLoggedIn={isLoggedIn} />;
 }

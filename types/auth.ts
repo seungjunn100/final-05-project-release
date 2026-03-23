@@ -4,6 +4,7 @@ export interface AuthInputProps extends React.InputHTMLAttributes<HTMLInputEleme
   error?: string | null;
   isValid?: boolean | null;
   message?: string;
+  suffix?: React.ReactNode;
 }
 
 // BaseButton 컴포넌트 props 타입 정의
